@@ -1,11 +1,13 @@
 #popuptext {
     display: inline-block;
-    font-family: 'Open Sans Condensed';
-    font-weight: 700;
-    color: white;
+    font-family: 'Denk One', sans-serif;
+    background: linear-gradient(to right, rgb(255,255,90), rgb(56,233,233));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
     font-size: 60px;
-    margin: 0;
-    margin-left: 15px;
+    margin: 0 0 0 15px;
     white-space: nowrap;
 }
 
@@ -13,9 +15,10 @@
     position: absolute;
     bottom: 20px;
     left: 20px;
-    width: 0px;
+    width: 0;
     height: 82px;
     overflow: hidden;
+    background: linear-gradient(to right, rgb(56,233,233), rgb(255,255,90));
 }
 
 iframe {

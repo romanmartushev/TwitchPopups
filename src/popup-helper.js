@@ -9,12 +9,11 @@ const popup = {
         $("#popuptext").css({ "opacity": 0, "margin-left": "50px" });
 
         const textWidth = $("#popuptext").width();
-        $("#popupbox").width(1);
         $("#popupbox").animate({ width: textWidth + 30 }, 500);
         $("#popuptext").animate({ "opacity": 1, "margin-left": "15px" }, 700);
     },
     /**
-     * Removes popup from screen and resets state of all commands 
+     * Removes popup from screen and resets state of all commands
      */
     delete: () => {
         spotlightUser = ""; // TODO: Remove this
