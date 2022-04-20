@@ -11,25 +11,9 @@ actionHandlers['!alert'] = {
         popup.showText(formattedText, alertBg);
         if (playAlertSound){
             new Audio(alertSoundFile).play();
-        } 
+        }
     }
 };
-
-
-// =======================================
-// Command: !delete
-// Description: This delete command resets the whole pop up system
-// =======================================
-actionHandlers['!delete'] = {
-    security: (context, textContent) => {
-        return context.mod || (context["badges-raw"] != null && context["badges-raw"].startsWith("broadcaster"))
-    },
-    handle: (context, textContent) => {
-        popup.delete();
-        // TODO : loop through objects calling its own state reset function
-    }
-};
-
 
 // =======================================
 // Command: !spotlight
@@ -43,7 +27,11 @@ actionHandlers['!spotlight'] = {
     },
     handle: (context, textContent) => {
         spotlightUser = textContent.substr(12).toLowerCase();
-        popup.showText(`${spotlightEmoji} Welcome ${spotlightUser} to the stage!`, spotlightBg);
+        if (spotlightUser.length === 0) {
+            popup.showText('', spotlightBg);
+        } else {
+            popup.showText(`${spotlightEmoji} Welcome ${spotlightUser} to the party crew!`, spotlightBg);
+        }
     }
 };
 

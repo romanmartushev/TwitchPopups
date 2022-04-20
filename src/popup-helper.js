@@ -3,22 +3,19 @@ const popup = {
      * Displays popup on screen with the given text and colour.
      */
     showText: (text, bgColour) => {
+        if (text.length === 0) {
+            spotlightUser = ""; // TODO: Remove this
+            $("#popupbox").animate({ width: 0 }, 500);
+            $("#popuptext").animate({ "opacity": 0, "margin-left": "50px" }, 700);
+            return;
+        }
         $("#popupbox").show();
         $("#popuptext").html(text);
         $("#popupbox").css({ "background-color": bgColour });
-        $("#popuptext").css({ "opacity": 0, "margin-left": "50px" });
 
         const textWidth = $("#popuptext").width();
         $("#popupbox").animate({ width: textWidth + 30 }, 500);
         $("#popuptext").animate({ "opacity": 1, "margin-left": "15px" }, 700);
-    },
-    /**
-     * Removes popup from screen and resets state of all commands
-     */
-    delete: () => {
-        spotlightUser = ""; // TODO: Remove this
-        $("#popupbox").animate({ width: 0 }, 500);
-        $("#popuptext").animate({ "opacity": 0, "margin-left": "50px" }, 700);
     },
     /**
      * Formats text with emotes, This must be past only and all message un-formatted or emotes wont be replaced properly
