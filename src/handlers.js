@@ -4,7 +4,7 @@
 // =======================================
 actionHandlers['!alert'] = {
     security: (context, textContent) => {
-        return context.mod || (context["badges-raw"] != null && context["badges-raw"].startsWith("broadcaster"))
+        return context.mod || (context["badges-raw"] != null && (context["badges-raw"].startsWith("broadcaster") || context["badges-raw"].startsWith("subscriber")))
     },
     handle: (context, textContent) => {
         const formattedText = popup.formatEmotes(textContent, context.emotes, true).substr(7);
@@ -23,7 +23,7 @@ var spotlightUser = "";
 
 actionHandlers['!spotlight'] = {
     security: (context, textContent) => {
-        return context.mod || (context["badges-raw"] != null && context["badges-raw"].startsWith("broadcaster"))
+        return context.mod || (context["badges-raw"] != null && (context["badges-raw"].startsWith("broadcaster") || context["badges-raw"].startsWith("subscriber")))
     },
     handle: (context, textContent) => {
         spotlightUser = textContent.substr(12).toLowerCase();
