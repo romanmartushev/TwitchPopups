@@ -35,6 +35,26 @@ actionHandlers['!spotlight'] = {
     }
 };
 
+// =======================================
+// Command: !fin <text>
+// Description: will tts whatever text comes after the !fin command
+// =======================================
+actionHandlers['!fin'] = {
+    security: (context, textContent) => {
+        return context.mod || (context["badges-raw"] != null && (context["badges-raw"].startsWith("broadcaster") || context["badges-raw"].startsWith("subscriber")))
+    },
+    handle: (context, textContent) => {
+        const text = textContent.substr(5);
+        const speech = new SpeechSynthesisUtterance(text);
+        speech.addEventListener('end', function (event) {
+            $("#tts").css('display', 'none');
+        });
+        $("#tts").css('display', 'block');
+        window.speechSynthesis.speak(speech);
+    }
+};
+
+
 // This handler is fired when the spotlighted user types something in chat
 allHandlers.push({
     security: (context, textContent) => {
