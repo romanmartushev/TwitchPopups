@@ -4,7 +4,7 @@
 // =======================================
 actionHandlers['!alert'] = {
     security: (context, textContent) => {
-        return context.mod || (context["badges-raw"] != null && (context["badges-raw"].startsWith("broadcaster") || context["badges-raw"].startsWith("subscriber")))
+        return context.mod || context.subscriber;
     },
     handle: (context, textContent) => {
         const formattedText = popup.formatEmotes(textContent, context.emotes, true).substr(7);
@@ -23,7 +23,7 @@ var spotlightUser = "";
 
 actionHandlers['!spotlight'] = {
     security: (context, textContent) => {
-        return context.mod || (context["badges-raw"] != null && (context["badges-raw"].startsWith("broadcaster") || context["badges-raw"].startsWith("subscriber")))
+        return context.mod || context.subscriber;
     },
     handle: (context, textContent) => {
         spotlightUser = textContent.substr(12).toLowerCase();
@@ -41,16 +41,20 @@ actionHandlers['!spotlight'] = {
 // =======================================
 actionHandlers['!fin'] = {
     security: (context, textContent) => {
-        return context.mod || (context["badges-raw"] != null && (context["badges-raw"].startsWith("broadcaster") || context["badges-raw"].startsWith("subscriber")))
+        return context.mod || context.subscriber;
     },
     handle: (context, textContent) => {
         const text = textContent.substr(5);
         const speech = new SpeechSynthesisUtterance(text);
         speech.addEventListener('end', function (event) {
-            $("#tts").css('display', 'none');
+            setTimeout(function() {
+                $("#tts").css('display', 'none');
+            }, 250);
         });
         $("#tts").css('display', 'block');
-        window.speechSynthesis.speak(speech);
+        setTimeout(function() {
+            window.speechSynthesis.speak(speech);
+        }, 250);
     }
 };
 

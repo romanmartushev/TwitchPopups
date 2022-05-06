@@ -14,11 +14,25 @@ let client = new tmi.client(opts);
 client.on('message', onMessageHandler);
 client.on('connected', onConnectedHandler);
 
+client.on('cheer', (channel, userstate, message) => {
+    const speech = new SpeechSynthesisUtterance(message);
+    speech.addEventListener('end', function (event) {
+        setTimeout(function() {
+            $("#tts").css('display', 'none');
+        }, 250);
+    });
+    $("#tts").css('display', 'block');
+    setTimeout(function() {
+        window.speechSynthesis.speak(speech);
+    }, 250);
+});
+
 // Connect to Twitch:
 client.connect();
 
 // Called every time a message comes in
 function onMessageHandler(target, context, msg, self) {
+
     // Remove whitespace from chat message
     const command = msg.trim();
 
@@ -28,8 +42,6 @@ function onMessageHandler(target, context, msg, self) {
     } else {
         handlerName = command;
     }
-
-    console.log(handlerName);
 
     // Handle the rest of chat not using commands
     for (const handler of allHandlers) {
