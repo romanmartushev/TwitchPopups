@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'Denk One';
+    src: url("fonts/Denk_One/DenkOne-Regular.ttf");
+}
+
 #popuptext {
     display: inline-block;
     font-family: 'Denk One', sans-serif;
