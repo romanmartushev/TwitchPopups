@@ -7,6 +7,7 @@ actionHandlers['!alert'] = {
         return context.mod || context.subscriber;
     },
     handle: (context, textContent) => {
+        spotlightUser = "";
         const formattedText = popup.formatEmotes(textContent, context.emotes, true).substr(7);
         popup.showText(formattedText, alertBg);
         if (playAlertSound){
@@ -66,7 +67,6 @@ allHandlers.push({
     },
     handle: (context, textContent) => {
         const formattedText = popup.formatEmotes(textContent, context.emotes, false);
-        console.log(formattedText);
         popup.showText(`${spotlightEmoji} ${context['display-name']}: ${formattedText}`, spotlightBg);
     }
 });

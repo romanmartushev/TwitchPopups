@@ -4,7 +4,6 @@ const popup = {
      */
     showText: (text, bgColour) => {
         if (text.length === 0) {
-            spotlightUser = ""; // TODO: Remove this
             $("#popupbox").animate({ width: 0 }, 500);
             $("#popuptext").animate({ "opacity": 0, "margin-left": "50px" }, 700);
             return;

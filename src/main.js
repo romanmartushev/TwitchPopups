@@ -6,6 +6,11 @@ const opts = {
 
 let actionHandlers = {};
 let allHandlers = [];
+let activeCommands = [
+    '!alert',
+    '!spotlight',
+    '!fin'
+];
 
 // Create a client with our options defined at the top of the file
 let client = new tmi.client(opts);
@@ -32,27 +37,19 @@ client.connect();
 
 // Called every time a message comes in
 function onMessageHandler(target, context, msg, self) {
+    const rawText = msg.trim();
+    const command =  rawText.indexOf(" ") > -1 ? rawText.substring(0, rawText.indexOf(" ")) : rawText;
 
-    // Remove whitespace from chat message
-    const command = msg.trim();
-
-    let handlerName;
-    if (command.indexOf(" ") > -1) {
-        handlerName = command.substring(0, command.indexOf(" "));
-    } else {
-        handlerName = command;
-    }
-
-    // Handle the rest of chat not using commands
-    for (const handler of allHandlers) {
-        if (handler.security(context, command)) {
-            handler.handle(context, command);
+    if (activeCommands.includes(command)) {
+        if (actionHandlers[command].security(context, rawText)) {
+            actionHandlers[command].handle(context, rawText);
         }
-    }
-
-    // Check all commands
-    if (actionHandlers[handlerName] && actionHandlers[handlerName].security(context, command)) {
-        actionHandlers[handlerName].handle(context, command);
+    } else {
+        for (const handler of allHandlers) {
+            if (handler.security(context, rawText)) {
+                handler.handle(context, rawText);
+            }
+        }
     }
 }
 
