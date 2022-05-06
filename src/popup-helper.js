@@ -2,7 +2,7 @@ const popup = {
     /**
      * Displays popup on screen with the given text and colour.
      */
-    showText: (text, bgColour) => {
+    showText: (text) => {
         if (text.length === 0) {
             $("#popupbox").animate({ width: 0 }, 500);
             $("#popuptext").animate({ "opacity": 0, "margin-left": "50px" }, 700);
@@ -10,7 +10,6 @@ const popup = {
         }
         $("#popupbox").show();
         $("#popuptext").html(text);
-        $("#popupbox").css({ "background-color": bgColour });
 
         const textWidth = $("#popuptext").width();
         $("#popupbox").animate({ width: textWidth + 30 }, 500);
@@ -28,23 +27,20 @@ const popup = {
         let newMessage = $($.parseHTML(message)).text().split("");
 
         //replace any twitch emotes in the message with img tags for those emotes
-        if (twitchEmotes) {
-            for (let emoteIndex in emotes) {
-                const emote = emotes[emoteIndex];
-                for (let charIndexes in emote) {
-                    let emoteIndexes = emote[charIndexes];
-                    if (typeof emoteIndexes == "string") {
-                        emoteIndexes = emoteIndexes.split("-");
-                        emoteIndexes = [parseInt(emoteIndexes[0]), parseInt(emoteIndexes[1])];
-                        for (let i = emoteIndexes[0]; i <= emoteIndexes[1]; ++i) {
-                            newMessage[i] = "";
-                        }
-                        newMessage[emoteIndexes[0]] = `<img class="emoticon" src="https://static-cdn.jtvnw.net/emoticons/v2/${emoteIndex}/default/dark/3.0"/>`;
+        for (let emoteIndex in emotes) {
+            const emote = emotes[emoteIndex];
+            for (let charIndexes in emote) {
+                let emoteIndexes = emote[charIndexes];
+                if (typeof emoteIndexes == "string") {
+                    emoteIndexes = emoteIndexes.split("-");
+                    emoteIndexes = [parseInt(emoteIndexes[0]), parseInt(emoteIndexes[1])];
+                    for (let i = emoteIndexes[0]; i <= emoteIndexes[1]; ++i) {
+                        newMessage[i] = "";
                     }
+                    newMessage[emoteIndexes[0]] = `<img class="emoticon" src="https://static-cdn.jtvnw.net/emoticons/v2/${emoteIndex}/default/dark/3.0"/>`;
                 }
             }
         }
-
         return newMessage.join("");
     }
 }
