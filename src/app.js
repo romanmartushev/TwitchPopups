@@ -10,14 +10,13 @@ export default new Vue({
     activeCommands: {},
     spotlightUser: "",
     spotlightEmoji: '<img class="emoticon" src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_1604443d6fd54998bfe170cc620868a2/default/dark/3.0">',
-    playAlertSound: false,
-    alertSoundFile: 'assets/sounds/alert.mp3',
 	},
 	mounted() {
     this.activeCommands = {
       '!alert': this.alertCommand,
       '!spotlight': this.spotlightCommand,
       '!fin': this.finCommand,
+      '!heal': this.healCommand,
     }
 
 		this.client = new tmi.client(this.opts);
@@ -49,10 +48,10 @@ export default new Vue({
         this.spotlightUser = "";
         const formattedText = this.formatEmotes(textContent, context.emotes);
         this.showText(formattedText);
-        if (this.playAlertSound) {
-          new Audio(this.alertSoundFile).play();
-        }
       }
+    },
+    healCommand(context, textContent) {
+      new Audio('assets/sounds/heal.mp3').play();
     },
     spotlightCommand(context, textContent) {
       if (context.mod || context.subscriber) {
