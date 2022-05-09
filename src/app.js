@@ -35,7 +35,7 @@ export default new Vue({
       const command =  rawText.indexOf(" ") > -1 ? rawText.substring(0, rawText.indexOf(" ")) : rawText;
 
       if (command in this.activeCommands) {
-        this.activeCommands[command](context, rawText.substring(command.length));
+        this.activeCommands[command](context, rawText);
       } else {
         this.onOtherMessages(context, rawText);
       }
@@ -46,7 +46,7 @@ export default new Vue({
     alertCommand(context, textContent) {
       if (context.mod || context.subscriber) {
         this.spotlightUser = "";
-        const formattedText = this.formatEmotes(textContent, context.emotes);
+        const formattedText = this.formatEmotes(textContent, context.emotes).substring(6);
         this.showText(formattedText);
       }
     },
@@ -55,8 +55,7 @@ export default new Vue({
     },
     spotlightCommand(context, textContent) {
       if (context.mod || context.subscriber) {
-        console.log(textContent);
-        this.spotlightUser = textContent.substring(2).toLowerCase();
+        this.spotlightUser = textContent.substring(12).toLowerCase();
         if (this.spotlightUser.length === 0) {
           this.showText('');
         } else {
@@ -66,7 +65,7 @@ export default new Vue({
     },
     finCommand(context, textContent) {
       if (context.mod || context.subscriber) {
-        this.textToSpeech(textContent);
+        this.textToSpeech(textContent.substring(4));
       }
     },
     onOtherMessages(context, textContent) {
@@ -113,16 +112,24 @@ export default new Vue({
 
       const audioTag = document.createElement("AUDIO");
       audioTag.src = src;
+      audioTag.id = 'tts-audio'
       document.body.appendChild(audioTag);
-      $("#tts").css('display', 'block');
 
-      setTimeout(function() {
-        audioTag.play();
-      }, 250);
+      const interval = setInterval(function() {
+        const element = document.getElementById('tts-audio');
+        if (element) {
+          $("#tts").css('display', 'block');
+          setTimeout(function() {
+            audioTag.play();
+          }, 250);
+          clearInterval(interval);
+        }
+      },100);
 
       audioTag.addEventListener("ended", () => {
         setTimeout(function() {
           $("#tts").css('display', 'none');
+          document.body.removeChild(audioTag);
         }, 250);
       });
     }
