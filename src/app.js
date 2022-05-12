@@ -17,6 +17,7 @@ export default new Vue({
       '!spotlight': this.spotlightCommand,
       '!fin': this.finCommand,
       '!heal': this.healCommand,
+      '!lurk': this.lurkCommand,
     }
 
 		this.client = new tmi.client(this.opts);
@@ -52,6 +53,9 @@ export default new Vue({
     },
     healCommand(context, textContent) {
       new Audio('assets/sounds/heal.mp3').play();
+    },
+    lurkCommand(context, textContent) {
+      new Audio('assets/sounds/lurk.mp3').play();
     },
     spotlightCommand(context, textContent) {
       if (context.mod || context.subscriber) {
