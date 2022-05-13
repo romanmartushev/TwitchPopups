@@ -10,14 +10,15 @@ export default new Vue({
     activeCommands: {},
     spotlightUser: "",
     spotlightEmoji: '<img class="emoticon" src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_1604443d6fd54998bfe170cc620868a2/default/dark/3.0">',
+    eventQueue: new EventQueue(),
 	},
 	mounted() {
     this.activeCommands = {
       '!alert': this.alertCommand,
       '!spotlight': this.spotlightCommand,
       '!fin': this.finCommand,
-      '!heal': this.healCommand,
-      '!lurk': this.lurkCommand,
+      '!heal': this.soundCommand,
+      '!lurk': this.soundCommand,
     }
 
 		this.client = new tmi.client(this.opts);
@@ -36,13 +37,20 @@ export default new Vue({
       const command =  rawText.indexOf(" ") > -1 ? rawText.substring(0, rawText.indexOf(" ")) : rawText;
 
       if (command in this.activeCommands) {
-        this.activeCommands[command](context, rawText);
+        const vm = this;
+        this.eventQueue.add(this.activeCommands[command], [context, rawText]);
+        setInterval(function () {
+          vm.eventQueue.execute();
+        });
       } else {
         this.onOtherMessages(context, rawText);
       }
     },
     onCheerHandler(channel, userstate, message) {
-      this.textToSpeech(message);
+      const beginning = `${userstate['display-name']} just cheered ${userstate.bits} bits `;
+      const cleaned = message.replace(/(Cheer\d+)/g, '');
+      const theMessage = beginning + cleaned;
+      return this.textToSpeech(theMessage);
     },
     alertCommand(context, textContent) {
       if (context.mod || context.subscriber) {
@@ -51,11 +59,13 @@ export default new Vue({
         this.showText(formattedText);
       }
     },
-    healCommand(context, textContent) {
-      new Audio('assets/sounds/heal.mp3').play();
-    },
-    lurkCommand(context, textContent) {
-      new Audio('assets/sounds/lurk.mp3').play();
+    soundCommand(context, textContent) {
+      const sound = textContent.indexOf(" ") > -1 ? textContent.substring(1, textContent.indexOf(" ")) : textContent.substring(1);
+      return new Promise(resolve => {
+        const audio = new Audio(`assets/sounds/${sound}.mp3`);
+        audio.play();
+        audio.onended = resolve;
+      });
     },
     spotlightCommand(context, textContent) {
       if (context.mod || context.subscriber) {
@@ -69,7 +79,7 @@ export default new Vue({
     },
     finCommand(context, textContent) {
       if (context.mod || context.subscriber) {
-        this.textToSpeech(textContent.substring(4));
+        return this.textToSpeech(textContent.substring(4));
       }
     },
     onOtherMessages(context, textContent) {
@@ -112,29 +122,32 @@ export default new Vue({
       $("#popuptext").animate({ "opacity": 1, "margin-left": "15px" }, 700);
     },
     textToSpeech(text) {
-      const src = "https://api.streamelements.com/kappa/v2/speech?voice=Justin&text=" + encodeURIComponent(text);
+      return new Promise(resolve => {
+        const src = "https://api.streamelements.com/kappa/v2/speech?voice=Justin&text=" + encodeURIComponent(text);
 
-      const audioTag = document.createElement("AUDIO");
-      audioTag.src = src;
-      audioTag.id = 'tts-audio'
-      document.body.appendChild(audioTag);
+        const audioTag = document.createElement("AUDIO");
+        audioTag.src = src;
+        audioTag.id = 'tts-audio'
+        document.body.appendChild(audioTag);
 
-      const interval = setInterval(function() {
-        const element = document.getElementById('tts-audio');
-        if (element) {
-          $("#tts").css('display', 'block');
+        const interval = setInterval(function() {
+          const element = document.getElementById('tts-audio');
+          if (element) {
+            $("#tts").css('display', 'block');
+            setTimeout(function() {
+              audioTag.play();
+            }, 250);
+            clearInterval(interval);
+          }
+        },100);
+
+        audioTag.addEventListener("ended", () => {
           setTimeout(function() {
-            audioTag.play();
+            $("#tts").css('display', 'none');
+            document.body.removeChild(audioTag);
+            resolve();
           }, 250);
-          clearInterval(interval);
-        }
-      },100);
-
-      audioTag.addEventListener("ended", () => {
-        setTimeout(function() {
-          $("#tts").css('display', 'none');
-          document.body.removeChild(audioTag);
-        }, 250);
+        });
       });
     }
   }
