@@ -57,7 +57,7 @@ export default new Vue({
       return this.textToSpeech(theMessage);
     },
     onRaidedHandler(channel, username, viewers) {
-      return this.textToSpeech(`${username} just raided with ${viewers} viewers. Thank you so much!`);
+      return this.textToSpeech(`${username} just raided with ${viewers} viewers. Thank you so much! Welcome raiders I'm Fin! You have entered romeboiii's channel! We like to play games and stuff, hope you enjoy yourself here!`);
     },
     alertCommand(context, textContent) {
       if (context.mod || context.subscriber) {
