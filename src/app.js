@@ -11,11 +11,15 @@ export default new Vue({
     spotlightUser: "",
     spotlightEmoji: '<img class="emoticon" src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_1604443d6fd54998bfe170cc620868a2/default/dark/3.0">',
     eventQueue: new EventQueue(),
+    show: false,
+    showTTS: false,
+    text: '',
 	},
 	mounted() {
     this.activeCommands = {
       '!alert': this.alertCommand,
       '!spotlight': this.spotlightCommand,
+      '!so': this.shoutOutCommand,
       '!fin': this.finCommand,
       '!heal': this.soundCommand,
       '!lurk': this.soundCommand,
@@ -24,8 +28,8 @@ export default new Vue({
 		this.client = new tmi.client(this.opts);
     this.client.on('message', this.onMessageHandler);
     this.client.on('cheer', this.onCheerHandler);
+    this.client.on('raided', this.onRaidedHandler)
     this.client.on('connected', this.onConnectedHandler);
-
     this.client.connect();
 	},
   methods: {
@@ -52,6 +56,9 @@ export default new Vue({
       const theMessage = beginning + cleaned;
       return this.textToSpeech(theMessage);
     },
+    onRaidedHandler(channel, username, viewers) {
+      return this.textToSpeech(`${username} just raided with ${viewers} viewers. Thank you so much!`);
+    },
     alertCommand(context, textContent) {
       if (context.mod || context.subscriber) {
         this.spotlightUser = "";
@@ -77,6 +84,16 @@ export default new Vue({
         }
       }
     },
+    shoutOutCommand(context, textContent) {
+      if (context.mod || context.subscriber) {
+        this.spotlightUser = textContent.substring(5).toLowerCase();
+        if (this.spotlightUser.length === 0) {
+          this.showText('');
+        } else {
+          this.showText(`${this.spotlightEmoji} Welcome ${this.spotlightUser} to the party crew!`);
+        }
+      }
+    },
     finCommand(context, textContent) {
       if (context.mod || context.subscriber) {
         return this.textToSpeech(textContent.substring(4));
@@ -89,8 +106,7 @@ export default new Vue({
       }
     },
     formatEmotes(message, emotes) {
-      let newMessage = $($.parseHTML(message)).text().split("");
-
+      let newMessage = message.split("");
       //replace any twitch emotes in the message with img tags for those emotes
       for (let emoteIndex in emotes) {
         const emote = emotes[emoteIndex];
@@ -109,19 +125,17 @@ export default new Vue({
       return newMessage.join("");
     },
     showText(text) {
-      if (text.length === 0) {
-        $("#popupbox").animate({ width: 0 }, 500);
-        $("#popuptext").animate({ "opacity": 0}, 700);
-        return;
+      const vm = this;
+      this.show = false;
+      if (text.length > 0) {
+        setTimeout(function () {
+          vm.text = text;
+          vm.show = true;
+        }, 1000);
       }
-
-      $("#popuptext").html(text);
-
-      const textWidth = $("#popuptext").width();
-      $("#popupbox").animate({ width: textWidth + 30 }, 500);
-      $("#popuptext").animate({ "opacity": 1, "margin-left": "15px" }, 700);
     },
     textToSpeech(text) {
+      const vm = this;
       return new Promise(resolve => {
         const src = "https://api.streamelements.com/kappa/v2/speech?voice=Justin&text=" + encodeURIComponent(text);
 
@@ -133,7 +147,7 @@ export default new Vue({
         const interval = setInterval(function() {
           const element = document.getElementById('tts-audio');
           if (element) {
-            $("#tts").css('display', 'block');
+            vm.showTTS = true;
             setTimeout(function() {
               audioTag.play();
             }, 250);
@@ -143,7 +157,7 @@ export default new Vue({
 
         audioTag.addEventListener("ended", () => {
           setTimeout(function() {
-            $("#tts").css('display', 'none');
+            vm.showTTS = false;
             document.body.removeChild(audioTag);
             resolve();
           }, 250);
