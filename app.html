@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <title>Twitch Popups</title>
 
-    <link rel="stylesheet" type="text/css" href="assets/styles.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/styles.css">
 
-    <script src="assets/lib/jquery-3.4.1.min.js"></script>
     <script src="assets/lib/tmi.min.js"></script>
     <script src="assets/lib/vue.js"></script>
 
@@ -15,10 +14,24 @@
 </head>
 <body>
 <div id="app">
-    <div id="popupbox">
-        <h1 id="popuptext"></h1>
-    </div>
-    <img id="tts" src="assets/images/tts.gif" style="display: none; position: absolute; bottom: 20px; left: 20px">
+    <transition name="bounce">
+        <div
+            v-if="show"
+            id="popupbox"
+        >
+            <div id="popuptext-wrapper">
+                <h1
+                    id="popuptext"
+                    v-html="text"
+                ></h1>
+            </div>
+        </div>
+    </transition>
+    <img
+        v-if="showTTS"
+        id="tts"
+        src="assets/images/tts.gif"
+    >
 </div>
 
 </body>
