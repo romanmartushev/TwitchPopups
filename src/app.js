@@ -14,6 +14,7 @@ export default new Vue({
     show: false,
     showTTS: false,
     text: '',
+    activeVideo: '',
 	},
 	mounted() {
     this.activeCommands = {
@@ -23,6 +24,9 @@ export default new Vue({
       '!fin': this.finCommand,
       '!heal': this.soundCommand,
       '!lurk': this.soundCommand,
+      '!youa': this.videoCommand,
+      '!plat': this.videoCommand,
+      '!dont': this.videoCommand,
     }
 
 		this.client = new tmi.client(this.opts);
@@ -73,6 +77,27 @@ export default new Vue({
         audio.play();
         audio.onended = resolve;
       });
+    },
+    videoCommand(context, textContent) {
+      if (context.mod || context.subscriber) {
+        const vm = this;
+        const videoName = textContent.indexOf(" ") > -1 ? textContent.substring(1, textContent.indexOf(" ")) : textContent.substring(1);
+        return new Promise(resolve => {
+          vm.activeVideo = videoName;
+
+          const interval = setInterval(function () {
+            const element = document.querySelector('video')
+            if (element) {
+              element.addEventListener('ended', (event) => {
+                vm.activeVideo = '';
+                resolve();
+              });
+
+              clearInterval(interval);
+            }
+          }, 100);
+        });
+      }
     },
     spotlightCommand(context, textContent) {
       if (context.mod || context.subscriber) {

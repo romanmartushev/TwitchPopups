@@ -27,6 +27,19 @@
             </div>
         </div>
     </transition>
+    <div id="video-wrapper">
+        <video
+            :key="activeVideo"
+            id="active-video"
+            autoplay
+            style="max-width: 1000px; max-height: 1000px"
+        >
+            <source
+                v-if="activeVideo !== ''"
+                :src="`assets/videos/${activeVideo}.mp4`"
+            >
+        </video>
+    </div>
     <img
         v-if="showTTS"
         id="tts"
