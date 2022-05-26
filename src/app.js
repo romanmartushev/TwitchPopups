@@ -27,6 +27,7 @@ export default new Vue({
       '!youa': this.videoCommand,
       '!plat': this.videoCommand,
       '!dont': this.videoCommand,
+      '!ding': this.videoCommand,
     }
 
 		this.client = new tmi.client(this.opts);
@@ -55,7 +56,13 @@ export default new Vue({
       }
     },
     onCheerHandler(channel, userstate, message) {
-      const beginning = `${userstate['display-name']} just cheered ${userstate.bits} bits `;
+      const bits = userstate.bits;
+
+      if (bits === 50) {
+        return this.playVideo('apparently');
+      }
+
+      const beginning = `${userstate['display-name']} just cheered ${bits} bits `;
       const cleaned = message.replace(/(Cheer\d+)/g, '');
       const theMessage = beginning + cleaned;
       return this.textToSpeech(theMessage);
@@ -80,23 +87,8 @@ export default new Vue({
     },
     videoCommand(context, textContent) {
       if (context.mod || context.subscriber) {
-        const vm = this;
         const videoName = textContent.indexOf(" ") > -1 ? textContent.substring(1, textContent.indexOf(" ")) : textContent.substring(1);
-        return new Promise(resolve => {
-          vm.activeVideo = videoName;
-
-          const interval = setInterval(function () {
-            const element = document.querySelector('video')
-            if (element) {
-              element.addEventListener('ended', (event) => {
-                vm.activeVideo = '';
-                resolve();
-              });
-
-              clearInterval(interval);
-            }
-          }, 100);
-        });
+        return this.playVideo(videoName);
       }
     },
     spotlightCommand(context, textContent) {
@@ -187,6 +179,24 @@ export default new Vue({
             resolve();
           }, 250);
         });
+      });
+    },
+    playVideo(videoName) {
+      const vm = this;
+      return new Promise(resolve => {
+        vm.activeVideo = videoName;
+
+        const interval = setInterval(function () {
+          const element = document.querySelector('video')
+          if (element) {
+            element.addEventListener('ended', (event) => {
+              vm.activeVideo = '';
+              resolve();
+            });
+
+            clearInterval(interval);
+          }
+        }, 100);
       });
     }
   }
