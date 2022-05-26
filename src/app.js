@@ -24,6 +24,7 @@ export default new Vue({
       '!fin': this.finCommand,
       '!heal': this.soundCommand,
       '!lurk': this.soundCommand,
+      '!bong': this.adminSoundCommand,
       '!youa': this.videoCommand,
       '!plat': this.videoCommand,
       '!dont': this.videoCommand,
@@ -84,6 +85,11 @@ export default new Vue({
         audio.play();
         audio.onended = resolve;
       });
+    },
+    adminSoundCommand(context, textContent) {
+      if (context.mod || context.subscriber) {
+        return this.soundCommand(context, textContent);
+      }
     },
     videoCommand(context, textContent) {
       if (context.mod || context.subscriber) {
