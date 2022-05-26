@@ -59,7 +59,7 @@ export default new Vue({
     onCheerHandler(channel, userstate, message) {
       const bits = userstate.bits;
 
-      if (bits === 50) {
+      if (bits == 50) {
         return this.playVideo('apparently');
       }
 
