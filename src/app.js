@@ -29,6 +29,8 @@ export default new Vue({
       '!plat': this.videoCommand,
       '!dont': this.videoCommand,
       '!ding': this.videoCommand,
+      '!no': this.videoCommand,
+      '!nice': this.videoCommand,
     }
 
 		this.client = new tmi.client(this.opts);
