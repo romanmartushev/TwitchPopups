@@ -197,6 +197,7 @@ export default new Vue({
         const interval = setInterval(function () {
           const element = document.querySelector('video')
           if (element) {
+            element.volume = 0.5;
             element.addEventListener('ended', (event) => {
               vm.activeVideo = '';
               resolve();
