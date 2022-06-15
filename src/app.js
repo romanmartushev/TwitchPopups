@@ -20,11 +20,10 @@ export default new Vue({
     this.activeCommands = {
       '!alert': this.alertCommand,
       '!spotlight': this.spotlightCommand,
-      '!so': this.shoutOutCommand,
       '!fin': this.finCommand,
       '!heal': this.soundCommand,
       '!lurk': this.soundCommand,
-      '!bong': this.adminSoundCommand,
+      '!bong': this.soundCommand,
       '!youa': this.videoCommand,
       '!plat': this.videoCommand,
       '!dont': this.videoCommand,
@@ -93,25 +92,19 @@ export default new Vue({
         return this.soundCommand(context, textContent);
       }
     },
-    videoCommand(context, textContent) {
+    adminVideoCommand(context, textContent) {
       if (context.mod || context.subscriber) {
         const videoName = textContent.indexOf(" ") > -1 ? textContent.substring(1, textContent.indexOf(" ")) : textContent.substring(1);
         return this.playVideo(videoName);
       }
     },
+    videoCommand(context, textContent) {
+      const videoName = textContent.indexOf(" ") > -1 ? textContent.substring(1, textContent.indexOf(" ")) : textContent.substring(1);
+      return this.playVideo(videoName);
+    },
     spotlightCommand(context, textContent) {
       if (context.mod || context.subscriber) {
         this.spotlightUser = textContent.substring(12).toLowerCase();
-        if (this.spotlightUser.length === 0) {
-          this.showText('');
-        } else {
-          this.showText(`${this.spotlightEmoji} Welcome ${this.spotlightUser} to the party crew!`);
-        }
-      }
-    },
-    shoutOutCommand(context, textContent) {
-      if (context.mod || context.subscriber) {
-        this.spotlightUser = textContent.substring(5).toLowerCase();
         if (this.spotlightUser.length === 0) {
           this.showText('');
         } else {
