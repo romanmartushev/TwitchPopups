@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "pinia": "^2.0.14",
+    "pinia-plugin-persistedstate": "^1.6.1",
+    "tmi.js": "^1.8.5",
     "vue": "^3.2.36"
   },
   "devDependencies": {
