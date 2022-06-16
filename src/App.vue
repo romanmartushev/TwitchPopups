@@ -8,7 +8,7 @@ export default {
     return {
       client: null,
       opts: {
-        channels: ["romeboiii"],
+        channels: [import.meta.env.VITE_TWITCH_CHANNEL],
       },
       activeCommands: {},
       spotlightUser: "",
@@ -107,9 +107,13 @@ export default {
     },
     subSound(name) {
       return new Promise((resolve) => {
+        this.showText(`${name} has arrived!!!`);
         const audio = new Audio(`/subSounds/${name}.mp3`);
         audio.play();
-        audio.onended = resolve;
+        audio.onended = () => {
+          this.showText("");
+          resolve();
+        };
       });
     },
     adminSoundCommand(context, textContent) {
@@ -158,7 +162,11 @@ export default {
         );
       }
       if (context.subscriber && this.subs.doesntHave(context.username)) {
-        this.eventQueue.add(this.subSound, [context.username]);
+        fetch(`/subSounds/${context.username}.mp3`).then((response) => {
+          if (response.ok) {
+            this.eventQueue.add(this.subSound, [context.username]);
+          }
+        });
         this.subs.add(context.username);
       }
     },
@@ -266,10 +274,7 @@ export default {
       autoplay
       style="max-width: 1000px; max-height: 1000px"
     >
-      <source
-        v-if="activeVideo !== ''"
-        :src="`/videos/${activeVideo}.mp4`"
-      />
+      <source v-if="activeVideo !== ''" :src="`/videos/${activeVideo}.mp4`" />
     </video>
   </div>
   <img v-if="showTTS" id="tts" src="/images/tts.gif" />
