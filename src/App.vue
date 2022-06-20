@@ -10,6 +10,7 @@ export default {
       opts: {
         channels: [import.meta.env.VITE_TWITCH_CHANNEL],
       },
+      broadcaster: import.meta.env.VITE_TWITCH_CHANNEL,
       activeCommands: {},
       spotlightUser: "",
       spotlightEmoji:
@@ -36,6 +37,7 @@ export default {
       "!ding": this.videoCommand,
       "!no": this.videoCommand,
       "!nice": this.videoCommand,
+      "!death": this.broadcasterVideoCommand,
     };
 
     this.client = new tmi.client(this.opts);
@@ -119,6 +121,15 @@ export default {
     adminSoundCommand(context, textContent) {
       if (context.mod || context.subscriber) {
         return this.soundCommand(context, textContent);
+      }
+    },
+    broadcasterVideoCommand(context, textContent) {
+      if (context.username === this.broadcaster) {
+        const videoName =
+          textContent.indexOf(" ") > -1
+            ? textContent.substring(1, textContent.indexOf(" "))
+            : textContent.substring(1);
+        return this.playVideo(videoName);
       }
     },
     adminVideoCommand(context, textContent) {
