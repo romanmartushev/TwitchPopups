@@ -113,8 +113,10 @@ export default {
         const audio = new Audio(`/subSounds/${name}.mp3`);
         audio.play();
         audio.onended = () => {
-          this.showText("");
-          resolve();
+          setTimeout(() => {
+            this.showText("");
+            resolve();
+          }, 3000);
         };
       });
     },
