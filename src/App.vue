@@ -33,6 +33,7 @@ export default {
       "!bong": this.soundCommand,
       "!ding": this.soundCommand,
       "!nice": this.soundCommand,
+      "!damage": this.soundCommand,
       "!youa": this.videoCommand,
       "!plat": this.videoCommand,
       "!dont": this.videoCommand,
