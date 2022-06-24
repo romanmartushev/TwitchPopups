@@ -65,9 +65,9 @@ export default {
 
       if (command in this.activeCommands) {
         this.eventQueue.add(this.activeCommands[command], [context, rawText]);
-      } else {
-        this.onOtherMessages(context, rawText);
       }
+
+      this.onOtherMessages(context, rawText);
     },
     onCheerHandler(channel, userstate, message) {
       const bits = userstate.bits;
