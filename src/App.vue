@@ -2,6 +2,7 @@
 import EventQueue from "./js/EventQueue";
 import tmi from "tmi.js";
 import { useSubStore } from "./stores/subs";
+import axios from "axios";
 
 export default {
   data() {
@@ -21,9 +22,12 @@ export default {
       text: "",
       activeVideo: "",
       subs: useSubStore(),
+      auth_token: "",
+      activeSub: {},
+      audioMuted: true,
     };
   },
-  mounted() {
+  async mounted() {
     this.activeCommands = {
       "!alert": this.alertCommand,
       "!spotlight": this.spotlightCommand,
@@ -48,9 +52,20 @@ export default {
     this.client.connect();
 
     const vm = this;
+
     setInterval(function () {
       vm.eventQueue.execute();
     });
+
+    this.auth_token = await axios
+      .post("https://id.twitch.tv/oauth2/token", {
+        client_id: import.meta.env.VITE_CLIENT_ID,
+        client_secret: import.meta.env.VITE_CLIENT_SECRET,
+        grant_type: "client_credentials",
+      })
+      .then((response) => {
+        return response.data.access_token;
+      });
   },
   methods: {
     onConnectedHandler(addr, port) {
@@ -107,17 +122,41 @@ export default {
         audio.onended = resolve;
       });
     },
-    subSound(name) {
+    subSound(context) {
+      const vm = this;
       return new Promise((resolve) => {
-        this.showText(`${name} has arrived!!!`);
-        const audio = new Audio(`/subSounds/${name}.mp3`);
-        audio.play();
-        audio.onended = () => {
-          setTimeout(() => {
-            this.showText("");
-            resolve();
-          }, 3000);
-        };
+        axios
+          .get(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
+            headers: {
+              Authorization: `Bearer ${this.auth_token}`,
+              "Client-Id": import.meta.env.VITE_CLIENT_ID,
+            },
+          })
+          .then((response) => {
+            vm.activeSub = response.data.data[0];
+          })
+          .then(() => {
+            axios
+              .get(`/subSounds/${vm.activeSub.display_name}.mp3`)
+              .then(() => {
+                const audio = new Audio(
+                  `/subSounds/${vm.activeSub.display_name}.mp3`
+                );
+                audio.play();
+                audio.onended = () => {
+                  setTimeout(() => {
+                    vm.activeSub = {};
+                    resolve();
+                  }, 1000);
+                };
+              })
+              .catch(() => {
+                setTimeout(() => {
+                  vm.activeSub = {};
+                  resolve();
+                }, 5000);
+              });
+          });
       });
     },
     adminSoundCommand(context, textContent) {
@@ -174,12 +213,13 @@ export default {
           `${this.spotlightEmoji} ${context["display-name"]}: ${formattedText}`
         );
       }
-      if (context.subscriber && this.subs.doesntHave(context.username)) {
-        fetch(`/subSounds/${context.username}.mp3`).then((response) => {
-          if (response.ok) {
-            this.eventQueue.add(this.subSound, [context.username]);
-          }
-        });
+
+      if (
+        context.subscriber &&
+        this.subs.doesntHave(context.username) &&
+        context.username !== this.broadcaster
+      ) {
+        this.eventQueue.add(this.subSound, [context]);
         this.subs.add(context.username);
       }
     },
@@ -274,13 +314,30 @@ export default {
 
 <template>
   <transition name="bounce">
-    <div v-if="show" id="popupbox">
-      <div id="popuptext-wrapper">
-        <h1 id="popuptext" v-html="text"></h1>
+    <div class="bg-special rounded absolute left-3 bottom-3" v-if="show">
+      <h1
+        class="special-text flex justify-center items-center uppercase whitespace-nowrap"
+        v-html="text"
+      ></h1>
+    </div>
+  </transition>
+  <transition name="bounce">
+    <div
+      class="absolute w-full h-full flex flex-col justify-center items-center"
+      v-if="Object.keys(activeSub).length > 0"
+    >
+      <img class="w-1/6 rounded" :src="activeSub.profile_image_url" />
+      <div class="bg-special rounded mt-1">
+        <p class="special-text uppercase">
+          {{ activeSub.display_name }} has arrived!!!
+        </p>
       </div>
     </div>
   </transition>
-  <div id="video-wrapper">
+  <div
+    class="flex justify-center items-center h-full justify-self-center"
+    id="video-wrapper"
+  >
     <video
       :key="activeVideo"
       id="active-video"
@@ -290,7 +347,5 @@ export default {
       <source v-if="activeVideo !== ''" :src="`/videos/${activeVideo}.mp4`" />
     </video>
   </div>
-  <img v-if="showTTS" id="tts" src="/images/tts.gif" />
+  <img v-if="showTTS" class="absolute bottom-20 left-3" src="/images/tts.gif" />
 </template>
-
-<style></style>
