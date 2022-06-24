@@ -31,13 +31,12 @@ export default {
       "!heal": this.soundCommand,
       "!lurk": this.soundCommand,
       "!bong": this.soundCommand,
+      "!ding": this.soundCommand,
+      "!nice": this.soundCommand,
       "!youa": this.videoCommand,
       "!plat": this.videoCommand,
       "!dont": this.videoCommand,
-      "!ding": this.videoCommand,
       "!no": this.videoCommand,
-      "!nice": this.videoCommand,
-      "!death": this.broadcasterVideoCommand,
     };
 
     this.client = new tmi.client(this.opts);
