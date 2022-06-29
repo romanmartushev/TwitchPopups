@@ -120,60 +120,46 @@ export default {
       this.eventQueue.add(this.playSound, ["/sounds/raid.mp3"]);
     },
     onSubscriptionHandler(channel, username, method, message, userstate) {
-      this.eventQueue.add(this.setModal, [
-        true,
-        "/images/sub.gif",
-        `${username} just subbed!!!`,
-      ]);
+      const event = `${username} just subbed!!!`;
+      this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
 
       this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
-      this.eventQueue.add(this.textToSpeech, [message]);
+      this.eventQueue.add(this.textToSpeech, [event + message]);
     },
     onAnonGiftPaidUpgrade(channel, username, userstate) {
-      this.eventQueue.add(this.setModal, [
-        true,
-        "/images/sub.gif",
-        `${username} is continuing their gift sub!!!`,
-      ]);
+      const event = `${username} is continuing their gift sub!!!`;
+      this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
 
       this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
+      this.eventQueue.add(this.textToSpeech, [event]);
     },
     onGiftPaidUpgrade(channel, username, sender, userstate) {
-      this.eventQueue.add(this.setModal, [
-        true,
-        "/images/sub.gif",
-        `${username} is continuing their gift sub from ${sender}!!!`,
-      ]);
+      const event = `${username} is continuing their gift sub from ${sender}!!!`;
+      this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
 
       this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
+      this.eventQueue.add(this.textToSpeech, [event]);
     },
     onReSub(channel, username, months, message, userstate, methods) {
-      this.eventQueue.add(this.setModal, [
-        true,
-        "/images/sub.gif",
-        `${username} just re-subbed!!!`,
-      ]);
+      const event = `${username} just re-subbed!!!`;
+      this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
 
       this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
-      this.eventQueue.add(this.textToSpeech, [message]);
+      this.eventQueue.add(this.textToSpeech, [event + message]);
     },
     onSubGift(channel, username, streakMonths, recipient, methods, userstate) {
-      this.eventQueue.add(this.setModal, [
-        true,
-        "/images/sub.gif",
-        `${username} just gifted a sub to ${recipient}!!!`,
-      ]);
+      const event = `${username} just gifted a sub to ${recipient}!!!`;
+      this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
 
       this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
+      this.eventQueue.add(this.textToSpeech, [event]);
     },
     onSubMysteryGift(channel, username, numbOfSubs, methods, userstate) {
-      this.eventQueue.add(this.setModal, [
-        true,
-        "/images/sub.gif",
-        `${username} just gifted ${numbOfSubs}!!!`,
-      ]);
+      const event = `${username} just gifted ${numbOfSubs} subs!!!`;
+      this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
 
       this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
+      this.eventQueue.add(this.textToSpeech, [event]);
     },
     alertCommand(context, textContent) {
       if (context.mod || context.subscriber) {
