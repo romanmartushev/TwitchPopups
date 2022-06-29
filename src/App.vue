@@ -13,9 +13,6 @@ export default {
       },
       broadcaster: import.meta.env.VITE_TWITCH_CHANNEL,
       activeCommands: {},
-      spotlightUser: "",
-      spotlightEmoji:
-        '<img class="emoticon" src="https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_1604443d6fd54998bfe170cc620868a2/default/dark/3.0">',
       eventQueue: new EventQueue(),
       show: false,
       showTTS: false,
@@ -34,7 +31,6 @@ export default {
   async mounted() {
     this.activeCommands = {
       "!alert": this.alertCommand,
-      "!spotlight": this.spotlightCommand,
       "!fin": this.finCommand,
       "!heal": this.soundCommand,
       "!lurk": this.soundCommand,
@@ -53,6 +49,12 @@ export default {
     this.client.on("message", this.onMessageHandler);
     this.client.on("cheer", this.onCheerHandler);
     this.client.on("raided", this.onRaidedHandler);
+    this.client.on("anongiftpaidupgrade", this.onAnonGiftPaidUpgrade);
+    this.client.on("giftpaidupgrade", this.onGiftPaidUpgrade);
+    this.client.on("resub", this.onReSub);
+    this.client.on("subgift", this.onSubGift);
+    this.client.on("submysterygift", this.onSubMysteryGift);
+    this.client.on("subscription", this.onSubscriptionHandler);
     this.client.on("connected", this.onConnectedHandler);
     this.client.connect();
 
@@ -93,45 +95,88 @@ export default {
       const bits = userstate.bits;
 
       if (bits == 50) {
-        return this.playVideo("apparently");
+        this.eventQueue.add(this.playVideo, ["apparently"]);
+        return;
       }
-      this.setModal(
+
+      this.eventQueue.add(this.setModal, [
         true,
         "",
-        `${userstate["display-name"]} just cheered ${bits} bits!!!`
-      );
-
-      const vm = this;
-      setTimeout(() => {
-        vm.setModal();
-      }, 5000);
+        `${userstate["display-name"]} just cheered ${bits} bits!!!`,
+      ]);
 
       const beginning = `${userstate["display-name"]} just cheered ${bits} bits `;
       const cleaned = message.replace(/(Cheer\d+)/g, "");
       const theMessage = beginning + cleaned;
-      return this.textToSpeech(theMessage);
+      this.eventQueue.add(this.textToSpeech, [theMessage]);
     },
     onRaidedHandler(channel, username, viewers) {
-      this.setModal(
+      this.eventQueue.add(this.setModal, [
         true,
         "/images/raid.gif",
-        `${username} just raided with ${viewers} viewers!!!`
-      );
+        `${username} just raided with ${viewers} viewers!!!`,
+      ]);
 
-      const vm = this;
-      setTimeout(() => {
-        vm.setModal();
-      }, 10000);
+      this.eventQueue.add(this.playSound, ["/sounds/raid.mp3"]);
+    },
+    onSubscriptionHandler(channel, username, method, message, userstate) {
+      this.eventQueue.add(this.setModal, [
+        true,
+        "/images/sub.gif",
+        `${username} just subbed!!!`,
+      ]);
 
-      return new Promise((resolve) => {
-        const audio = new Audio("/sounds/raid.mp3");
-        audio.play();
-        audio.onended = resolve;
-      });
+      this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
+      this.eventQueue.add(this.textToSpeech, [message]);
+    },
+    onAnonGiftPaidUpgrade(channel, username, userstate) {
+      this.eventQueue.add(this.setModal, [
+        true,
+        "/images/sub.gif",
+        `${username} is continuing their gift sub!!!`,
+      ]);
+
+      this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
+    },
+    onGiftPaidUpgrade(channel, username, sender, userstate) {
+      this.eventQueue.add(this.setModal, [
+        true,
+        "/images/sub.gif",
+        `${username} is continuing their gift sub from ${sender}!!!`,
+      ]);
+
+      this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
+    },
+    onReSub(channel, username, months, message, userstate, methods) {
+      this.eventQueue.add(this.setModal, [
+        true,
+        "/images/sub.gif",
+        `${username} just re-subbed!!!`,
+      ]);
+
+      this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
+      this.eventQueue.add(this.textToSpeech, [message]);
+    },
+    onSubGift(channel, username, streakMonths, recipient, methods, userstate) {
+      this.eventQueue.add(this.setModal, [
+        true,
+        "/images/sub.gif",
+        `${username} just gifted a sub to ${recipient}!!!`,
+      ]);
+
+      this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
+    },
+    onSubMysteryGift(channel, username, numbOfSubs, methods, userstate) {
+      this.eventQueue.add(this.setModal, [
+        true,
+        "/images/sub.gif",
+        `${username} just gifted ${numbOfSubs}!!!`,
+      ]);
+
+      this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
     },
     alertCommand(context, textContent) {
       if (context.mod || context.subscriber) {
-        this.spotlightUser = "";
         const formattedText = this.formatEmotes(
           textContent,
           context.emotes
@@ -144,74 +189,30 @@ export default {
         textContent.indexOf(" ") > -1
           ? textContent.substring(1, textContent.indexOf(" "))
           : textContent.substring(1);
-      return new Promise((resolve) => {
-        const audio = new Audio(`/sounds/${sound}.mp3`);
-        audio.play();
-        audio.onended = resolve;
-      });
+      return this.playSound(`/sounds/${sound}.mp3`);
     },
     subSound(context) {
       const vm = this;
-      return new Promise((resolve) => {
-        axios
-          .get(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
-            headers: {
-              Authorization: `Bearer ${this.auth_token}`,
-              "Client-Id": import.meta.env.VITE_CLIENT_ID,
-            },
-          })
-          .then((response) => {
-            const activeSub = response.data.data[0];
-            vm.setModal(
-              true,
-              activeSub.profile_image_url,
-              `${activeSub.display_name} has arrived!!!`
-            );
-            axios
-              .get(`/subSounds/${activeSub.display_name}.mp3`)
-              .then(() => {
-                const audio = new Audio(
-                  `/subSounds/${activeSub.display_name}.mp3`
-                );
-                audio.play();
-                audio.onended = () => {
-                  setTimeout(() => {
-                    vm.setModal();
-                    resolve();
-                  }, 1000);
-                };
-              })
-              .catch(() => {
-                setTimeout(() => {
-                  vm.setModal();
-                  resolve();
-                }, 5000);
-              });
+      axios
+        .get(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
+          headers: {
+            Authorization: `Bearer ${this.auth_token}`,
+            "Client-Id": import.meta.env.VITE_CLIENT_ID,
+          },
+        })
+        .then((response) => {
+          const activeSub = response.data.data[0];
+          vm.eventQueue.add(vm.setModal, [
+            true,
+            activeSub.profile_image_url,
+            `${activeSub.display_name} has arrived!!!`,
+          ]);
+          axios.get(`/subSounds/${activeSub.display_name}.mp3`).then(() => {
+            vm.eventQueue.add(vm.playSound, [
+              `/subSounds/${activeSub.display_name}.mp3`,
+            ]);
           });
-      });
-    },
-    adminSoundCommand(context, textContent) {
-      if (context.mod || context.subscriber) {
-        return this.soundCommand(context, textContent);
-      }
-    },
-    broadcasterVideoCommand(context, textContent) {
-      if (context.username === this.broadcaster) {
-        const videoName =
-          textContent.indexOf(" ") > -1
-            ? textContent.substring(1, textContent.indexOf(" "))
-            : textContent.substring(1);
-        return this.playVideo(videoName);
-      }
-    },
-    adminVideoCommand(context, textContent) {
-      if (context.mod || context.subscriber) {
-        const videoName =
-          textContent.indexOf(" ") > -1
-            ? textContent.substring(1, textContent.indexOf(" "))
-            : textContent.substring(1);
-        return this.playVideo(videoName);
-      }
+        });
     },
     videoCommand(context, textContent) {
       const videoName =
@@ -220,37 +221,18 @@ export default {
           : textContent.substring(1);
       return this.playVideo(videoName);
     },
-    spotlightCommand(context, textContent) {
-      if (context.mod || context.subscriber) {
-        this.spotlightUser = textContent.substring(12).toLowerCase();
-        if (this.spotlightUser.length === 0) {
-          this.showText("");
-        } else {
-          this.showText(
-            `${this.spotlightEmoji} Welcome ${this.spotlightUser} to the party crew!`
-          );
-        }
-      }
-    },
     finCommand(context, textContent) {
       if (context.mod || context.subscriber) {
         return this.textToSpeech(textContent.substring(4));
       }
     },
     onOtherMessages(context, textContent) {
-      if (context.username === this.spotlightUser) {
-        const formattedText = this.formatEmotes(textContent, context.emotes);
-        this.showText(
-          `${this.spotlightEmoji} ${context["display-name"]}: ${formattedText}`
-        );
-      }
-
       if (
         context.subscriber &&
         this.subs.doesntHave(context.username) &&
         context.username !== this.broadcaster
       ) {
-        this.eventQueue.add(this.subSound, [context]);
+        this.subSound(context);
         this.subs.add(context.username);
       }
     },
@@ -339,12 +321,30 @@ export default {
         }, 100);
       });
     },
-    setModal(active = false, img = "", text = "") {
-      this.modal = {
-        active: active,
-        img: img,
-        text: text,
-      };
+    playSound(sound) {
+      return new Promise((resolve) => {
+        const audio = new Audio(sound);
+        audio.play();
+        audio.onended = resolve;
+      });
+    },
+    setModal(active = false, img = "", text = "", time = 5000) {
+      return new Promise((resolve) => {
+        this.modal = {
+          active: active,
+          img: img,
+          text: text,
+        };
+        const vm = this;
+        setTimeout(() => {
+          vm.modal = {
+            active: false,
+            img: "",
+            text: "",
+          };
+        }, time);
+        resolve();
+      });
     },
   },
 };
