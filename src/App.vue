@@ -18,6 +18,7 @@ export default {
       showTTS: false,
       text: "",
       activeVideo: "",
+      activeImage: "",
       subs: useSubStore(),
       auth_token: "",
       audioMuted: true,
@@ -39,6 +40,7 @@ export default {
       "!nice": this.soundCommand,
       "!damage": this.soundCommand,
       "!rollin": this.soundCommand,
+      "!slap": this.imageSwitchCommand,
       "!youa": this.videoCommand,
       "!plat": this.videoCommand,
       "!dont": this.videoCommand,
@@ -162,6 +164,25 @@ export default {
           ? textContent.substring(1, textContent.indexOf(" "))
           : textContent.substring(1);
       return this.playSound(`/sounds/${sound}.mp3`);
+    },
+    imageSwitchCommand(context, textContent) {
+      const vm = this;
+      const command =
+        textContent.indexOf(" ") > -1
+          ? textContent.substring(1, textContent.indexOf(" "))
+          : textContent.substring(1);
+      return new Promise((resolve) => {
+        vm.activeImage = `before-${command}.png`;
+        setTimeout(() => {
+          const audio = new Audio(`/sounds/${command}.mp3`);
+          audio.play();
+          vm.activeImage = `after-${command}.png`;
+          audio.onended = () => {
+            vm.activeImage = "";
+            resolve();
+          };
+        }, 1000);
+      });
     },
     videoCommand(context, textContent) {
       const videoName =
@@ -350,4 +371,11 @@ export default {
   </div>
   <img v-if="showTTS" class="absolute bottom-20 left-3" src="/images/tts.gif" />
   <audio id="tts-audio" />
+  <img
+    v-if="activeImage"
+    :key="activeImage"
+    class="absolute bottom-0 right-20"
+    style="max-height: 300px"
+    :src="'/images/' + activeImage"
+  />
 </template>
