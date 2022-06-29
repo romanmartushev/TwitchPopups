@@ -277,26 +277,17 @@ export default {
           "https://api.streamelements.com/kappa/v2/speech?voice=Justin&text=" +
           encodeURIComponent(text);
 
-        const audioTag = document.createElement("AUDIO");
+        const audioTag = document.getElementById("tts-audio");
         audioTag.src = src;
-        audioTag.id = "tts-audio";
-        document.body.appendChild(audioTag);
 
-        const interval = setInterval(function () {
-          const element = document.getElementById("tts-audio");
-          if (element) {
-            vm.showTTS = true;
-            setTimeout(function () {
-              audioTag.play();
-            }, 250);
-            clearInterval(interval);
-          }
-        }, 100);
+        vm.showTTS = true;
+        setTimeout(function () {
+          audioTag.play();
+        }, 250);
 
         audioTag.addEventListener("ended", () => {
           setTimeout(function () {
             vm.showTTS = false;
-            document.body.removeChild(audioTag);
             resolve();
           }, 250);
         });
@@ -386,4 +377,5 @@ export default {
     </video>
   </div>
   <img v-if="showTTS" class="absolute bottom-20 left-3" src="/images/tts.gif" />
+  <audio id="tts-audio" />
 </template>
