@@ -107,8 +107,7 @@ export default {
 
       const beginning = `${userstate["display-name"]} just cheered ${bits} bits `;
       const cleaned = message.replace(/(Cheer\d+)/g, "");
-      const theMessage = beginning + cleaned;
-      this.eventQueue.add(this.textToSpeech, [theMessage]);
+      this.eventQueue.add(this.textToSpeech, [beginning + cleaned]);
     },
     onRaidedHandler(channel, username, viewers) {
       this.eventQueue.add(this.setModal, [
@@ -121,45 +120,32 @@ export default {
     },
     onSubscriptionHandler(channel, username, method, message, userstate) {
       const event = `${username} just subbed!!!`;
-      this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
-
-      this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
-      this.eventQueue.add(this.textToSpeech, [event + message]);
+      this.baseSub(event, message);
     },
     onAnonGiftPaidUpgrade(channel, username, userstate) {
       const event = `${username} is continuing their gift sub!!!`;
-      this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
-
-      this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
-      this.eventQueue.add(this.textToSpeech, [event]);
+      this.baseSub(event);
     },
     onGiftPaidUpgrade(channel, username, sender, userstate) {
       const event = `${username} is continuing their gift sub from ${sender}!!!`;
-      this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
-
-      this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
-      this.eventQueue.add(this.textToSpeech, [event]);
+      this.baseSub(event);
     },
     onReSub(channel, username, months, message, userstate, methods) {
       const event = `${username} just re-subbed!!!`;
-      this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
-
-      this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
-      this.eventQueue.add(this.textToSpeech, [event + message]);
+      this.baseSub(event, message);
     },
     onSubGift(channel, username, streakMonths, recipient, methods, userstate) {
       const event = `${username} just gifted a sub to ${recipient}!!!`;
-      this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
-
-      this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
-      this.eventQueue.add(this.textToSpeech, [event]);
+      this.baseSub(event);
     },
     onSubMysteryGift(channel, username, numbOfSubs, methods, userstate) {
       const event = `${username} just gifted ${numbOfSubs} subs!!!`;
+      this.baseSub(event);
+    },
+    baseSub(event, message = "") {
       this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
-
       this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
-      this.eventQueue.add(this.textToSpeech, [event]);
+      this.eventQueue.add(this.textToSpeech, [event + message]);
     },
     alertCommand(context, textContent) {
       if (context.mod || context.subscriber) {
@@ -176,6 +162,28 @@ export default {
           ? textContent.substring(1, textContent.indexOf(" "))
           : textContent.substring(1);
       return this.playSound(`/sounds/${sound}.mp3`);
+    },
+    videoCommand(context, textContent) {
+      const videoName =
+        textContent.indexOf(" ") > -1
+          ? textContent.substring(1, textContent.indexOf(" "))
+          : textContent.substring(1);
+      return this.playVideo(videoName);
+    },
+    finCommand(context, textContent) {
+      if (context.mod || context.subscriber) {
+        return this.textToSpeech(textContent.substring(4));
+      }
+    },
+    onOtherMessages(context, textContent) {
+      if (
+        context.subscriber &&
+        this.subs.doesntHave(context.username) &&
+        context.username !== this.broadcaster
+      ) {
+        this.subSound(context);
+        this.subs.add(context.username);
+      }
     },
     subSound(context) {
       const vm = this;
@@ -199,28 +207,6 @@ export default {
             ]);
           });
         });
-    },
-    videoCommand(context, textContent) {
-      const videoName =
-        textContent.indexOf(" ") > -1
-          ? textContent.substring(1, textContent.indexOf(" "))
-          : textContent.substring(1);
-      return this.playVideo(videoName);
-    },
-    finCommand(context, textContent) {
-      if (context.mod || context.subscriber) {
-        return this.textToSpeech(textContent.substring(4));
-      }
-    },
-    onOtherMessages(context, textContent) {
-      if (
-        context.subscriber &&
-        this.subs.doesntHave(context.username) &&
-        context.username !== this.broadcaster
-      ) {
-        this.subSound(context);
-        this.subs.add(context.username);
-      }
     },
     formatEmotes(message, emotes) {
       let newMessage = message.split("");
