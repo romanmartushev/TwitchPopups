@@ -23,8 +23,12 @@ export default {
       activeVideo: "",
       subs: useSubStore(),
       auth_token: "",
-      activeSub: {},
       audioMuted: true,
+      modal: {
+        active: false,
+        img: "",
+        text: "",
+      },
     };
   },
   async mounted() {
@@ -38,6 +42,7 @@ export default {
       "!ding": this.soundCommand,
       "!nice": this.soundCommand,
       "!damage": this.soundCommand,
+      "!rollin": this.soundCommand,
       "!youa": this.videoCommand,
       "!plat": this.videoCommand,
       "!dont": this.videoCommand,
@@ -90,6 +95,16 @@ export default {
       if (bits == 50) {
         return this.playVideo("apparently");
       }
+      this.setModal(
+        true,
+        "",
+        `${userstate["display-name"]} just cheered ${bits} bits!!!`
+      );
+
+      const vm = this;
+      setTimeout(() => {
+        vm.setModal();
+      }, 5000);
 
       const beginning = `${userstate["display-name"]} just cheered ${bits} bits `;
       const cleaned = message.replace(/(Cheer\d+)/g, "");
@@ -97,9 +112,22 @@ export default {
       return this.textToSpeech(theMessage);
     },
     onRaidedHandler(channel, username, viewers) {
-      return this.textToSpeech(
-        `${username} just raided with ${viewers} viewers. Thank you so much! Welcome raiders I'm Fin! You have entered romeboiii's channel! We like to play games and stuff, hope you enjoy yourself here!`
+      this.setModal(
+        true,
+        "/images/raid.gif",
+        `${username} just raided with ${viewers} viewers!!!`
       );
+
+      const vm = this;
+      setTimeout(() => {
+        vm.setModal();
+      }, 10000);
+
+      return new Promise((resolve) => {
+        const audio = new Audio("/sounds/raid.mp3");
+        audio.play();
+        audio.onended = resolve;
+      });
     },
     alertCommand(context, textContent) {
       if (context.mod || context.subscriber) {
@@ -133,26 +161,29 @@ export default {
             },
           })
           .then((response) => {
-            vm.activeSub = response.data.data[0];
-          })
-          .then(() => {
+            const activeSub = response.data.data[0];
+            vm.setModal(
+              true,
+              activeSub.profile_image_url,
+              `${activeSub.display_name} has arrived!!!`
+            );
             axios
-              .get(`/subSounds/${vm.activeSub.display_name}.mp3`)
+              .get(`/subSounds/${activeSub.display_name}.mp3`)
               .then(() => {
                 const audio = new Audio(
-                  `/subSounds/${vm.activeSub.display_name}.mp3`
+                  `/subSounds/${activeSub.display_name}.mp3`
                 );
                 audio.play();
                 audio.onended = () => {
                   setTimeout(() => {
-                    vm.activeSub = {};
+                    vm.setModal();
                     resolve();
                   }, 1000);
                 };
               })
               .catch(() => {
                 setTimeout(() => {
-                  vm.activeSub = {};
+                  vm.setModal();
                   resolve();
                 }, 5000);
               });
@@ -308,6 +339,13 @@ export default {
         }, 100);
       });
     },
+    setModal(active = false, img = "", text = "") {
+      this.modal = {
+        active: active,
+        img: img,
+        text: text,
+      };
+    },
   },
 };
 </script>
@@ -324,12 +362,12 @@ export default {
   <transition name="bounce">
     <div
       class="absolute w-full h-full flex flex-col justify-center items-center"
-      v-if="Object.keys(activeSub).length > 0"
+      v-if="modal.active"
     >
-      <img class="w-1/6 rounded" :src="activeSub.profile_image_url" />
+      <img class="w-1/6 rounded" :src="modal.img" />
       <div class="bg-special rounded mt-1">
         <p class="special-text uppercase">
-          {{ activeSub.display_name }} has arrived!!!
+          {{ modal.text }}
         </p>
       </div>
     </div>
