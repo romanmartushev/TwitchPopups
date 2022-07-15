@@ -3,18 +3,24 @@ import { defineStore } from "pinia";
 export const useSubStore = defineStore({
   id: "subs",
   state: () => ({
-    subscribers: [],
+    subscribers: {},
   }),
   actions: {
-    add(name) {
-      this.subscribers.push(name);
+    add(context) {
+      this.subscribers[context.username] = context;
     },
     doesntHave(name) {
-      return !this.subscribers.includes(name);
+      return !Object.keys(this.subscribers).includes(name);
+    },
+    has(name) {
+      return Object.keys(this.subscribers).includes(name);
+    },
+    getSubscriber(name) {
+      return this.subscribers[name];
     },
   },
   persist: {
     storage: window.sessionStorage,
-    paths: ['subscribers'],
+    paths: ["subscribers"],
   },
 });

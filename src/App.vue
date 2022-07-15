@@ -45,6 +45,7 @@ export default {
       "!plat": this.videoCommand,
       "!dont": this.videoCommand,
       "!no": this.videoCommand,
+      "!ss": this.replaySubSound,
     };
 
     this.client = new tmi.client(this.opts);
@@ -203,7 +204,16 @@ export default {
         context.username !== this.broadcaster
       ) {
         this.subSound(context);
-        this.subs.add(context.username);
+        this.subs.add(context);
+      }
+    },
+    replaySubSound(context, textContent) {
+      if (context.username === this.broadcaster) {
+        const name = textContent.substring(5);
+        if (this.subs.has(name)) {
+          const sub = this.subs.getSubscriber(name);
+          this.subSound(sub);
+        }
       }
     },
     subSound(context) {
