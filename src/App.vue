@@ -34,6 +34,7 @@ export default {
       "!alert": this.alertCommand,
       "!fin": this.finCommand,
       "!heal": this.soundCommand,
+      "!help": this.soundCommand,
       "!lurk": this.soundCommand,
       "!bong": this.soundCommand,
       "!ding": this.soundCommand,
