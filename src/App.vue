@@ -155,7 +155,7 @@ export default {
       this.eventQueue.add(this.textToSpeech, [event + message]);
     },
     alertCommand(context, textContent) {
-      if (context.mod || context.subscriber) {
+      if (this.isModSubscriberVip(context)) {
         const formattedText = this.formatEmotes(
           textContent,
           context.emotes
@@ -232,7 +232,7 @@ export default {
       return this.playVideo(videoName);
     },
     finCommand(context, textContent) {
-      if (context.mod || context.subscriber) {
+      if (this.isModSubscriberVip(context)) {
         return this.textToSpeech(textContent.substring(4));
       }
     },
@@ -378,6 +378,9 @@ export default {
         }, time);
         resolve();
       });
+    },
+    isModSubscriberVip(context) {
+      return context.mod || context.subscriber || context.badges.vip;
     },
   },
 };
