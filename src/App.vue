@@ -3,6 +3,7 @@ import EventQueue from "./js/EventQueue";
 import tmi from "tmi.js";
 import { useSubStore } from "./stores/subs";
 import axios from "axios";
+import { useVipStore } from "./stores/vips";
 
 export default {
   data() {
@@ -20,6 +21,7 @@ export default {
       activeVideo: "",
       activeImage: "",
       subs: useSubStore(),
+      vips: useVipStore(),
       auth_token: "",
       audioMuted: true,
       modal: {
@@ -47,6 +49,7 @@ export default {
       "!dont": this.videoCommand,
       "!no": this.videoCommand,
       "!ss": this.replaySubSound,
+      "!vip": this.vipCommand,
     };
 
     this.client = new tmi.client(this.opts);
@@ -167,6 +170,41 @@ export default {
           : textContent.substring(1);
       return this.playSound(`/sounds/${sound}.mp3`);
     },
+    vipCommand(context, textContent) {
+      const vm = this;
+      if (context.badges.vip) {
+        if (this.vips.has(context.username)) {
+          const vip = this.vips.getVip(context.username);
+          vm.eventQueue.add(vm.setModal, [
+            true,
+            vip.profile_image_url,
+            `I'M A VIP B**CH!!!! - ${vip.display_name}`,
+            12000,
+          ]);
+          vm.eventQueue.add(vm.playSound, ["/sounds/vip.mp3"]);
+        } else {
+          axios
+            .get(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
+              headers: {
+                Authorization: `Bearer ${this.auth_token}`,
+                "Client-Id": import.meta.env.VITE_CLIENT_ID,
+              },
+            })
+            .then((response) => {
+              let vip = response.data.data[0];
+              vip.username = context.username;
+              vm.vips.add(vip);
+              vm.eventQueue.add(vm.setModal, [
+                true,
+                vip.profile_image_url,
+                `I'M A VIP B**CH!!!! - ${vip.display_name}`,
+                12000,
+              ]);
+              vm.eventQueue.add(vm.playSound, ["/sounds/vip.mp3"]);
+            });
+        }
+      }
+    },
     imageSwitchCommand(context, textContent) {
       const vm = this;
       const command =
@@ -201,7 +239,7 @@ export default {
     onOtherMessages(context, textContent) {
       if (
         context.subscriber &&
-        this.subs.doesntHave(context.username) &&
+        !this.subs.has(context.username) &&
         context.username !== this.broadcaster
       ) {
         this.subSound(context);
@@ -233,9 +271,9 @@ export default {
             activeSub.profile_image_url,
             `${activeSub.display_name} has arrived!!!`,
           ]);
-          axios.get(`/subSounds/${activeSub.display_name}.mp3`).then(() => {
+          axios.get(`/subSounds/${context.username}.mp3`).then(() => {
             vm.eventQueue.add(vm.playSound, [
-              `/subSounds/${activeSub.display_name}.mp3`,
+              `/subSounds/${context.username}.mp3`,
             ]);
           });
         });

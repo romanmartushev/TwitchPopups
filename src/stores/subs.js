@@ -9,9 +9,6 @@ export const useSubStore = defineStore({
     add(context) {
       this.subscribers[context.username] = context;
     },
-    doesntHave(name) {
-      return !Object.keys(this.subscribers).includes(name);
-    },
     has(name) {
       return Object.keys(this.subscribers).includes(name);
     },
