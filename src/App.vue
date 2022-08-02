@@ -152,7 +152,11 @@ export default {
     baseSub(event, message = "") {
       this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
       this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
-      this.eventQueue.add(this.textToSpeech, [event + message]);
+      let text = event;
+      if (message) {
+        text += message;
+      }
+      this.eventQueue.add(this.textToSpeech, [text]);
     },
     alertCommand(context, textContent) {
       if (this.isModSubscriberVip(context)) {
