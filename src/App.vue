@@ -35,6 +35,7 @@ export default {
     this.activeCommands = {
       "!alert": this.alertCommand,
       "!fin": this.finCommand,
+      "!cloaker": this.soundCommand,
       "!heal": this.soundCommand,
       "!help": this.soundCommand,
       "!lurk": this.soundCommand,
