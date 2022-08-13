@@ -47,6 +47,7 @@ export default {
       "!youa": this.videoCommand,
       "!plat": this.videoCommand,
       "!dont": this.videoCommand,
+      "!dog": this.videoCommand,
       "!no": this.videoCommand,
       "!ss": this.replaySubSound,
       "!vip": this.vipCommand,
