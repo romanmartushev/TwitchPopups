@@ -179,8 +179,10 @@ export default {
 
       if (command in this.activeCommands) {
         if (
-          !this.cooldown.hasGlobal(command) &&
-          !this.cooldown.hasUser(context.username, command)
+          (!this.cooldown.hasGlobal(command) &&
+            !this.cooldown.hasUser(context.username, command)) ||
+          context.badges.vip ||
+          context.username === this.broadcaster
         ) {
           this.eventQueue.add(this.activeCommands[command].func, [
             context,
