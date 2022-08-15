@@ -4,6 +4,7 @@ import tmi from "tmi.js";
 import { useSubStore } from "./stores/subs";
 import axios from "axios";
 import { useVipStore } from "./stores/vips";
+import { useCoolDownStore } from "./stores/cooldown";
 
 export default {
   data() {
@@ -22,6 +23,7 @@ export default {
       activeImage: "",
       subs: useSubStore(),
       vips: useVipStore(),
+      cooldown: useCoolDownStore(),
       auth_token: "",
       audioMuted: true,
       modal: {
@@ -35,60 +37,98 @@ export default {
     this.activeCommands = {
       "!alert": {
         func: this.alertCommand,
+        globalCoolDown: 0,
+        userCoolDown: 0,
       },
       "!fin": {
         func: this.finCommand,
+        globalCoolDown: 0,
+        userCoolDown: 0,
       },
       "!cloaker": {
         func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!heal": {
         func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!help": {
         func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!lurk": {
         func: this.soundCommand,
+        globalCoolDown: 0,
+        userCoolDown: 15000,
       },
       "!bong": {
         func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!ding": {
         func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!nice": {
         func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!damage": {
         func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!rollin": {
         func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!slap": {
         func: this.imageSwitchCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!youa": {
         func: this.videoCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!plat": {
         func: this.videoCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!dont": {
         func: this.videoCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!dog": {
         func: this.videoCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!no": {
         func: this.videoCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
       "!ss": {
         func: this.replaySubSound,
+        globalCoolDown: 0,
+        userCoolDown: 0,
       },
       "!vip": {
         func: this.vipCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
       },
     };
 
@@ -133,10 +173,21 @@ export default {
           : rawText;
 
       if (command in this.activeCommands) {
-        this.eventQueue.add(this.activeCommands[command].func, [
-          context,
-          rawText,
-        ]);
+        if (
+          !this.cooldown.hasGlobal(command) &&
+          !this.cooldown.hasUser(context.username, command)
+        ) {
+          this.eventQueue.add(this.activeCommands[command].func, [
+            context,
+            rawText,
+          ]);
+          this.cooldown.addUser(
+            command,
+            this.activeCommands[command],
+            context.username
+          );
+          this.cooldown.addGlobal(command, this.activeCommands[command]);
+        }
       }
 
       this.onOtherMessages(context, rawText);
