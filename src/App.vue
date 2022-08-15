@@ -33,25 +33,63 @@ export default {
   },
   async mounted() {
     this.activeCommands = {
-      "!alert": this.alertCommand,
-      "!fin": this.finCommand,
-      "!cloaker": this.soundCommand,
-      "!heal": this.soundCommand,
-      "!help": this.soundCommand,
-      "!lurk": this.soundCommand,
-      "!bong": this.soundCommand,
-      "!ding": this.soundCommand,
-      "!nice": this.soundCommand,
-      "!damage": this.soundCommand,
-      "!rollin": this.soundCommand,
-      "!slap": this.imageSwitchCommand,
-      "!youa": this.videoCommand,
-      "!plat": this.videoCommand,
-      "!dont": this.videoCommand,
-      "!dog": this.videoCommand,
-      "!no": this.videoCommand,
-      "!ss": this.replaySubSound,
-      "!vip": this.vipCommand,
+      "!alert": {
+        func: this.alertCommand,
+      },
+      "!fin": {
+        func: this.finCommand,
+      },
+      "!cloaker": {
+        func: this.soundCommand,
+      },
+      "!heal": {
+        func: this.soundCommand,
+      },
+      "!help": {
+        func: this.soundCommand,
+      },
+      "!lurk": {
+        func: this.soundCommand,
+      },
+      "!bong": {
+        func: this.soundCommand,
+      },
+      "!ding": {
+        func: this.soundCommand,
+      },
+      "!nice": {
+        func: this.soundCommand,
+      },
+      "!damage": {
+        func: this.soundCommand,
+      },
+      "!rollin": {
+        func: this.soundCommand,
+      },
+      "!slap": {
+        func: this.imageSwitchCommand,
+      },
+      "!youa": {
+        func: this.videoCommand,
+      },
+      "!plat": {
+        func: this.videoCommand,
+      },
+      "!dont": {
+        func: this.videoCommand,
+      },
+      "!dog": {
+        func: this.videoCommand,
+      },
+      "!no": {
+        func: this.videoCommand,
+      },
+      "!ss": {
+        func: this.replaySubSound,
+      },
+      "!vip": {
+        func: this.vipCommand,
+      },
     };
 
     this.client = new tmi.client(this.opts);
@@ -95,7 +133,10 @@ export default {
           : rawText;
 
       if (command in this.activeCommands) {
-        this.eventQueue.add(this.activeCommands[command], [context, rawText]);
+        this.eventQueue.add(this.activeCommands[command].func, [
+          context,
+          rawText,
+        ]);
       }
 
       this.onOtherMessages(context, rawText);
