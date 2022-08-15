@@ -130,6 +130,11 @@ export default {
         globalCoolDown: 5000,
         userCoolDown: 15000,
       },
+      "!pet": {
+        func: this.petTurtleDog,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+      },
     };
 
     this.client = new tmi.client(this.opts);
@@ -458,6 +463,9 @@ export default {
         audio.play();
         audio.onended = resolve;
       });
+    },
+    petTurtleDog() {
+      return this.setModal(true, "/images/pet-turtle-dog.gif", "GOOD BOIII!!!");
     },
     setModal(active = false, img = "", text = "", time = 5000) {
       return new Promise((resolve) => {
