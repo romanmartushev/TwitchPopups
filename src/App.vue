@@ -231,9 +231,7 @@ export default {
       this.eventQueue.add(this.setModal, [
         true,
         "/images/host.gif",
-        `${username} just ${
-          autohost ? "auto-hosted" : "hosted"
-        } with ${viewers} viewers!!!`,
+        `${username} just ${autohost ? "auto-hosted" : "hosted"}!!!`,
       ]);
 
       this.eventQueue.add(this.playSound, ["/sounds/host.mp3"]);

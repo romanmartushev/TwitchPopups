@@ -9,12 +9,12 @@
     -webkit-text-fill-color: transparent;
     -webkit-text-stroke-width: 2px;
     -webkit-text-stroke-color: black;
-    font-size: 50px;
+    font-size: 40px;
     margin: 0 15px 0 15px;
 }
 
 .special-text img {
-    width: 70px;
+    width: 40px;
     margin: 0 10px 0 10px;
 }
 
