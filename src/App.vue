@@ -151,12 +151,6 @@ export default {
     this.client.on("connected", this.onConnectedHandler);
     this.client.connect();
 
-    const vm = this;
-
-    setInterval(function () {
-      vm.eventQueue.execute();
-    });
-
     this.auth_token = await axios
       .post("https://id.twitch.tv/oauth2/token", {
         client_id: import.meta.env.VITE_CLIENT_ID,
@@ -166,6 +160,14 @@ export default {
       .then((response) => {
         return response.data.access_token;
       });
+  },
+  watch: {
+    eventQueue: {
+      handler() {
+        this.eventQueue.execute();
+      },
+      deep: true,
+    },
   },
   methods: {
     onConnectedHandler(addr, port) {
