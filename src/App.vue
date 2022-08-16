@@ -141,6 +141,7 @@ export default {
     this.client.on("message", this.onMessageHandler);
     this.client.on("cheer", this.onCheerHandler);
     this.client.on("raided", this.onRaidedHandler);
+    this.client.on("hosted", this.onHostedHandler);
     this.client.on("anongiftpaidupgrade", this.onAnonGiftPaidUpgrade);
     this.client.on("giftpaidupgrade", this.onGiftPaidUpgrade);
     this.client.on("resub", this.onReSub);
@@ -222,6 +223,17 @@ export default {
         true,
         "/images/raid.gif",
         `${username} just raided with ${viewers} viewers!!!`,
+      ]);
+
+      this.eventQueue.add(this.playSound, ["/sounds/raid.mp3"]);
+    },
+    onHostedHandler(channel, username, viewers, autohost) {
+      this.eventQueue.add(this.setModal, [
+        true,
+        "/images/host.gif",
+        `${username} just ${
+          autohost ? "auto-hosted" : "hosted"
+        } with ${viewers} viewers!!!`,
       ]);
 
       this.eventQueue.add(this.playSound, ["/sounds/raid.mp3"]);
