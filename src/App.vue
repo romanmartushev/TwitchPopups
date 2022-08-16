@@ -236,7 +236,7 @@ export default {
         } with ${viewers} viewers!!!`,
       ]);
 
-      this.eventQueue.add(this.playSound, ["/sounds/raid.mp3"]);
+      this.eventQueue.add(this.playSound, ["/sounds/host.mp3"]);
     },
     onSubscriptionHandler(channel, username, method, message, userstate) {
       const event = `${username} just subbed!!!`;
