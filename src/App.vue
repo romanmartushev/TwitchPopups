@@ -90,6 +90,11 @@ export default {
         globalCoolDown: 5000,
         userCoolDown: 15000,
       },
+      "!lost": {
+        func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+      },
       "!slap": {
         func: this.imageSwitchCommand,
         globalCoolDown: 5000,
