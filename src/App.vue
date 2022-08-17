@@ -145,7 +145,7 @@ export default {
     this.client.on("anongiftpaidupgrade", this.onAnonGiftPaidUpgrade);
     this.client.on("giftpaidupgrade", this.onGiftPaidUpgrade);
     this.client.on("resub", this.onReSub);
-    this.client.on("subgift", this.onSubGift);
+    // this.client.on("subgift", this.onSubGift);
     this.client.on("submysterygift", this.onSubMysteryGift);
     this.client.on("subscription", this.onSubscriptionHandler);
     this.client.on("connected", this.onConnectedHandler);
@@ -254,10 +254,10 @@ export default {
       const event = `${username} just re-subbed!!!`;
       this.baseSub(event, message);
     },
-    onSubGift(channel, username, streakMonths, recipient, methods, userstate) {
-      const event = `${username} just gifted a sub to ${recipient}!!!`;
-      this.baseSub(event);
-    },
+    // onSubGift(channel, username, streakMonths, recipient, methods, userstate) {
+    //   const event = `${username} just gifted a sub to ${recipient}!!!`;
+    //   this.baseSub(event);
+    // },
     onSubMysteryGift(channel, username, numbOfSubs, methods, userstate) {
       const event = `${username} just gifted ${numbOfSubs} subs!!!`;
       this.baseSub(event);
