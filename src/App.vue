@@ -59,19 +59,13 @@ export default {
         userCoolDown: 15000,
         auth: this.isForAll,
       },
-      "!help": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
       "!lurk": {
         func: this.soundCommand,
         globalCoolDown: 0,
         userCoolDown: 15000,
         auth: this.isForAll,
       },
-      "!bong": {
+      "!bell": {
         func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
@@ -120,12 +114,6 @@ export default {
         auth: this.isForAll,
       },
       "!plat": {
-        func: this.videoCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!dont": {
         func: this.videoCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
