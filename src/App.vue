@@ -28,8 +28,9 @@ export default {
       audioMuted: true,
       modal: {
         active: false,
-        img: "",
+        src: "",
         text: "",
+        isVideo: false,
       },
     };
   },
@@ -148,6 +149,12 @@ export default {
         globalCoolDown: 5000,
         userCoolDown: 15000,
         auth: this.isForAll,
+      },
+      "!host": {
+        func: this.playHost,
+        globalCoolDown: 0,
+        userCoolDown: 0,
+        auth: this.isModSubscriberVip,
       },
     };
 
@@ -486,19 +493,29 @@ export default {
     petTurtleDog() {
       return this.setModal(true, "/images/pet-turtle-dog.gif", "GOOD BOIII!!!");
     },
+    playHost() {
+      return this.setModal(
+        true,
+        "/videos/host.mp4",
+        "Please Host The Channel!!!"
+      );
+    },
     setModal(active = false, img = "", text = "", time = 5000) {
+      const extension = img.split(".");
       return new Promise((resolve) => {
         this.modal = {
           active: active,
-          img: img,
+          src: img,
           text: text,
+          isVideo: extension[1] === "mp4",
         };
         const vm = this;
         setTimeout(() => {
           vm.modal = {
             active: false,
-            img: "",
+            src: "",
             text: "",
+            isVideo: false,
           };
         }, time);
         resolve();
@@ -543,7 +560,10 @@ export default {
       class="absolute w-full h-full flex flex-col justify-center items-center"
       v-if="modal.active"
     >
-      <img class="w-1/6 rounded" :src="modal.img" />
+      <video v-if="modal.isVideo" autoplay class="w-1/5 rounded">
+        <source :src="modal.src" />
+      </video>
+      <img v-else class="w-1/5 rounded" :src="modal.src" />
       <div class="bg-special rounded mt-1">
         <p class="special-text uppercase">
           {{ modal.text }}
