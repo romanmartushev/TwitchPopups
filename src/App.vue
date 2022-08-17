@@ -39,106 +39,127 @@ export default {
         func: this.alertCommand,
         globalCoolDown: 0,
         userCoolDown: 0,
+        auth: this.isModSubscriberVip,
       },
       "!fin": {
         func: this.finCommand,
         globalCoolDown: 0,
         userCoolDown: 0,
+        auth: this.isModSubscriberVip,
       },
       "!cloaker": {
         func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!heal": {
         func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!help": {
         func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!lurk": {
         func: this.soundCommand,
         globalCoolDown: 0,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!bong": {
         func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!ding": {
         func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!nice": {
         func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!damage": {
         func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!rollin": {
         func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!lost": {
         func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!slap": {
         func: this.imageSwitchCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!youa": {
         func: this.videoCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!plat": {
         func: this.videoCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!dont": {
         func: this.videoCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!dog": {
         func: this.videoCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!no": {
         func: this.videoCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
       "!ss": {
         func: this.replaySubSound,
         globalCoolDown: 0,
         userCoolDown: 0,
+        auth: this.isModVip,
       },
       "!vip": {
         func: this.vipCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isVip,
       },
       "!pet": {
         func: this.petTurtleDog,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isForAll,
       },
     };
 
@@ -185,12 +206,14 @@ export default {
           ? rawText.substring(0, rawText.indexOf(" "))
           : rawText;
 
-      if (command in this.activeCommands) {
+      if (
+        command in this.activeCommands &&
+        this.activeCommands[command].auth(context)
+      ) {
         if (
           (!this.cooldown.hasGlobal(command) &&
             !this.cooldown.hasUser(context.username, command)) ||
-          context.badges.vip ||
-          context.username === this.broadcaster
+          this.isModVip(context)
         ) {
           this.eventQueue.add(this.activeCommands[command].func, [
             context,
@@ -205,7 +228,7 @@ export default {
         }
       }
 
-      this.onOtherMessages(context, rawText);
+      this.subSound(context);
     },
     onCheerHandler(channel, userstate, message) {
       const bits = userstate.bits;
@@ -277,13 +300,11 @@ export default {
       this.eventQueue.add(this.textToSpeech, [text]);
     },
     alertCommand(context, textContent) {
-      if (this.isModSubscriberVip(context)) {
-        const formattedText = this.formatEmotes(
-          textContent,
-          context.emotes
-        ).substring(6);
-        this.showText(formattedText);
-      }
+      const formattedText = this.formatEmotes(
+        textContent,
+        context.emotes
+      ).substring(6);
+      this.showText(formattedText);
     },
     soundCommand(context, textContent) {
       const sound =
@@ -294,37 +315,35 @@ export default {
     },
     vipCommand(context, textContent) {
       const vm = this;
-      if (context.badges.vip) {
-        if (this.vips.has(context.username)) {
-          const vip = this.vips.getVip(context.username);
-          vm.eventQueue.add(vm.setModal, [
-            true,
-            vip.profile_image_url,
-            `I'M A VIP B**CH!!!! - ${vip.display_name}`,
-            12000,
-          ]);
-          vm.eventQueue.add(vm.playSound, ["/sounds/vip.mp3"]);
-        } else {
-          axios
-            .get(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
-              headers: {
-                Authorization: `Bearer ${this.auth_token}`,
-                "Client-Id": import.meta.env.VITE_CLIENT_ID,
-              },
-            })
-            .then((response) => {
-              let vip = response.data.data[0];
-              vip.username = context.username;
-              vm.vips.add(vip);
-              vm.eventQueue.add(vm.setModal, [
-                true,
-                vip.profile_image_url,
-                `I'M A VIP B**CH!!!! - ${vip.display_name}`,
-                12000,
-              ]);
-              vm.eventQueue.add(vm.playSound, ["/sounds/vip.mp3"]);
-            });
-        }
+      if (this.vips.has(context.username)) {
+        const vip = this.vips.getVip(context.username);
+        vm.eventQueue.add(vm.setModal, [
+          true,
+          vip.profile_image_url,
+          `I'M A VIP B**CH!!!! - ${vip.display_name}`,
+          12000,
+        ]);
+        vm.eventQueue.add(vm.playSound, ["/sounds/vip.mp3"]);
+      } else {
+        axios
+          .get(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
+            headers: {
+              Authorization: `Bearer ${this.auth_token}`,
+              "Client-Id": import.meta.env.VITE_CLIENT_ID,
+            },
+          })
+          .then((response) => {
+            let vip = response.data.data[0];
+            vip.username = context.username;
+            vm.vips.add(vip);
+            vm.eventQueue.add(vm.setModal, [
+              true,
+              vip.profile_image_url,
+              `I'M A VIP B**CH!!!! - ${vip.display_name}`,
+              12000,
+            ]);
+            vm.eventQueue.add(vm.playSound, ["/sounds/vip.mp3"]);
+          });
       }
     },
     imageSwitchCommand(context, textContent) {
@@ -354,51 +373,44 @@ export default {
       return this.playVideo(videoName);
     },
     finCommand(context, textContent) {
-      if (this.isModSubscriberVip(context)) {
-        return this.textToSpeech(textContent.substring(4));
+      return this.textToSpeech(textContent.substring(4));
+    },
+    replaySubSound(context, textContent) {
+      const name = textContent.substring(5);
+      if (this.subs.has(name)) {
+        const sub = this.subs.getSubscriber(name);
+        this.subSound(sub);
       }
     },
-    onOtherMessages(context, textContent) {
+    subSound(context) {
       if (
         context.subscriber &&
         !this.subs.has(context.username) &&
         context.username !== this.broadcaster
       ) {
-        this.subSound(context);
+        const vm = this;
+        axios
+          .get(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
+            headers: {
+              Authorization: `Bearer ${this.auth_token}`,
+              "Client-Id": import.meta.env.VITE_CLIENT_ID,
+            },
+          })
+          .then((response) => {
+            const activeSub = response.data.data[0];
+            vm.eventQueue.add(vm.setModal, [
+              true,
+              activeSub.profile_image_url,
+              `${activeSub.display_name} has arrived!!!`,
+            ]);
+            axios.get(`/subSounds/${context.username}.mp3`).then(() => {
+              vm.eventQueue.add(vm.playSound, [
+                `/subSounds/${context.username}.mp3`,
+              ]);
+            });
+          });
         this.subs.add(context);
       }
-    },
-    replaySubSound(context, textContent) {
-      if (context.username === this.broadcaster) {
-        const name = textContent.substring(5);
-        if (this.subs.has(name)) {
-          const sub = this.subs.getSubscriber(name);
-          this.subSound(sub);
-        }
-      }
-    },
-    subSound(context) {
-      const vm = this;
-      axios
-        .get(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
-          headers: {
-            Authorization: `Bearer ${this.auth_token}`,
-            "Client-Id": import.meta.env.VITE_CLIENT_ID,
-          },
-        })
-        .then((response) => {
-          const activeSub = response.data.data[0];
-          vm.eventQueue.add(vm.setModal, [
-            true,
-            activeSub.profile_image_url,
-            `${activeSub.display_name} has arrived!!!`,
-          ]);
-          axios.get(`/subSounds/${context.username}.mp3`).then(() => {
-            vm.eventQueue.add(vm.playSound, [
-              `/subSounds/${context.username}.mp3`,
-            ]);
-          });
-        });
     },
     formatEmotes(message, emotes) {
       let newMessage = message.split("");
@@ -505,7 +517,25 @@ export default {
       });
     },
     isModSubscriberVip(context) {
-      return context.mod || context.subscriber || context.badges.vip;
+      return (
+        context.mod ||
+        context.subscriber ||
+        context.badges.vip ||
+        context.username === this.broadcaster
+      );
+    },
+    isModVip(context) {
+      return (
+        context.mod ||
+        context.badges.vip ||
+        context.username === this.broadcaster
+      );
+    },
+    isVip(context) {
+      return context.badges.vip;
+    },
+    isForAll(context) {
+      return true;
     },
   },
 };
