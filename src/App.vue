@@ -48,12 +48,6 @@ export default {
         userCoolDown: 0,
         auth: this.isModSubscriberVip,
       },
-      "!cloaker": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
       "!heal": {
         func: this.soundCommand,
         globalCoolDown: 5000,
