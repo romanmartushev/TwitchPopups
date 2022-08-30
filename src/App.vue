@@ -222,6 +222,11 @@ export default {
     onCheerHandler(channel, userstate, message) {
       const bits = userstate.bits;
 
+      if (bits == 20) {
+        this.eventQueue.add(this.playVideo, ["friend"]);
+        return;
+      }
+
       if (bits == 50) {
         this.eventQueue.add(this.playVideo, ["apparently"]);
         return;
