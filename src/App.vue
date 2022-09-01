@@ -66,6 +66,12 @@ export default {
         userCoolDown: 15000,
         auth: this.isForAll,
       },
+      "!bin": {
+        func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isForAll,
+      },
       "!ding": {
         func: this.soundCommand,
         globalCoolDown: 5000,
