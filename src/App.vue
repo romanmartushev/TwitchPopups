@@ -108,12 +108,6 @@ export default {
         userCoolDown: 15000,
         auth: this.isForAll,
       },
-      "!youa": {
-        func: this.videoCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
       "!plat": {
         func: this.videoCommand,
         globalCoolDown: 5000,
