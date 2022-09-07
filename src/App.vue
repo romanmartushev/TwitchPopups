@@ -156,6 +156,18 @@ export default {
         userCoolDown: 15000,
         auth: this.isVip,
       },
+      "!apparently": {
+        func: this.videoCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isBroadcaster,
+      },
+      "!friend": {
+        func: this.videoCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isBroadcaster,
+      },
     };
 
     this.client = new tmi.client(this.opts);
@@ -531,6 +543,9 @@ export default {
     },
     isVip(context) {
       return context.badges.vip || context.username === this.broadcaster;
+    },
+    isBroadcaster(context) {
+      return context.username === this.broadcaster;
     },
     isForAll(context) {
       return true;
