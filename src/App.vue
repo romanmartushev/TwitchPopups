@@ -524,17 +524,24 @@ export default {
 
 <template>
   <div class="cyberpunk2077 absolute left-1 bottom-1" v-if="show">
-    <h1 class="text-pink whitespace-nowrap cyberpunk" v-html="text"></h1>
+    <h1
+      class="text-pink flex justify-center items-center whitespace-nowrap cyberpunk"
+      v-html="text"
+    ></h1>
   </div>
   <transition name="bounce">
     <div
       class="absolute w-full h-full flex flex-col justify-center items-center"
       v-if="modal.active"
     >
-      <video v-if="modal.isVideo" autoplay class="w-1/5 cyberpunk dotted">
+      <video
+        v-if="modal.isVideo"
+        autoplay
+        class="w-1/5 cyberpunk-border dotted"
+      >
         <source :src="modal.src" />
       </video>
-      <img v-else class="w-1/5 cyberpunk dotted" :src="modal.src" />
+      <img v-else class="w-1/5 cyberpunk-border dotted" :src="modal.src" />
       <div class="cyberpunk2077 mt-1">
         <h2 class="text-pink cyberpunk">
           {{ modal.text }}
@@ -550,7 +557,7 @@ export default {
       v-if="activeVideo !== ''"
       :key="activeVideo"
       id="active-video"
-      class="cyberpunk dotted"
+      class="cyberpunk-border dotted"
       autoplay
       style="max-width: 1000px; max-height: 1000px"
     >

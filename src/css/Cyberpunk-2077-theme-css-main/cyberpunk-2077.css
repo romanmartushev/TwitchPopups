@@ -8,7 +8,7 @@
 
 /* Images frames */
 
-img.cyberpunk, video.cyberpunk {
+.cyberpunk-border {
   padding: 30px ;
   padding-left: 5px;
   padding-right: 5px;
@@ -28,6 +28,13 @@ h4.cyberpunk {
   line-height: 2.2rem;
   font-weight: 200;
   padding-bottom: 15px;
+}
+h1 img,
+h2 img,
+h3 img,
+h4 img {
+  width: 40px;
+  margin: 0 10px 0 10px;
 }
 
 h2.cyberpunk {
@@ -375,7 +382,7 @@ h4.cyberpunk:after {
 .dotted,
 .dotted:before,
 .dotted:after {
-  background: #000;
+  background: var(--blue-color);
   background-image: radial-gradient(var(--yellow-color) 1px, transparent 0);
   background-size: 5px 5px;
   background-position: -13px -3px;
