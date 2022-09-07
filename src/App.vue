@@ -144,23 +144,16 @@ export default {
         userCoolDown: 15000,
         auth: this.isForAll,
       },
-      "!host": {
-        func: this.playHost,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isModSubscriberVip,
-      },
     };
 
     this.client = new tmi.client(this.opts);
     this.client.on("message", this.onMessageHandler);
     this.client.on("cheer", this.onCheerHandler);
     this.client.on("raided", this.onRaidedHandler);
-    this.client.on("hosted", this.onHostedHandler);
     this.client.on("anongiftpaidupgrade", this.onAnonGiftPaidUpgrade);
     this.client.on("giftpaidupgrade", this.onGiftPaidUpgrade);
     this.client.on("resub", this.onReSub);
-    // this.client.on("subgift", this.onSubGift);
+    this.client.on("subgift", this.onSubGift);
     this.client.on("submysterygift", this.onSubMysteryGift);
     this.client.on("subscription", this.onSubscriptionHandler);
     this.client.on("connected", this.onConnectedHandler);
@@ -251,15 +244,6 @@ export default {
 
       this.eventQueue.add(this.playSound, ["/sounds/raid.mp3"]);
     },
-    onHostedHandler(channel, username, viewers, autohost) {
-      this.eventQueue.add(this.setModal, [
-        true,
-        "/images/host.gif",
-        `${username} just ${autohost ? "auto-hosted" : "hosted"}!!!`,
-      ]);
-
-      this.eventQueue.add(this.playSound, ["/sounds/host.mp3"]);
-    },
     onSubscriptionHandler(channel, username, method, message, userstate) {
       const event = `${username} just subbed!!!`;
       this.baseSub(event, message);
@@ -276,10 +260,10 @@ export default {
       const event = `${username} just re-subbed!!!`;
       this.baseSub(event, message);
     },
-    // onSubGift(channel, username, streakMonths, recipient, methods, userstate) {
-    //   const event = `${username} just gifted a sub to ${recipient}!!!`;
-    //   this.baseSub(event);
-    // },
+    onSubGift(channel, username, streakMonths, recipient, methods, userstate) {
+      const event = `${username} just gifted a sub to ${recipient}!!!`;
+      this.baseSub(event);
+    },
     onSubMysteryGift(channel, username, numbOfSubs, methods, userstate) {
       const event = `${username} just gifted ${numbOfSubs} subs!!!`;
       this.baseSub(event);
@@ -491,13 +475,6 @@ export default {
     },
     petTurtleDog() {
       return this.setModal(true, "/images/pet-turtle-dog.gif", "GOOD BOIII!!!");
-    },
-    playHost() {
-      return this.setModal(
-        true,
-        "/videos/host.mp4",
-        "Please Host The Channel!!!"
-      );
     },
     setModal(active = false, img = "", text = "", time = 5000) {
       const extension = img.split(".");
