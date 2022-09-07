@@ -36,49 +36,7 @@ export default {
   },
   async mounted() {
     this.activeCommands = {
-      "!alert": {
-        func: this.alertCommand,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isModSubscriberVip,
-      },
-      "!fin": {
-        func: this.finCommand,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isModSubscriberVip,
-      },
-      "!heal": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!lurk": {
-        func: this.soundCommand,
-        globalCoolDown: 0,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
       "!bell": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!bin": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!ding": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!nice": {
         func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
@@ -90,7 +48,19 @@ export default {
         userCoolDown: 15000,
         auth: this.isForAll,
       },
-      "!rollin": {
+      "!ding": {
+        func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isForAll,
+      },
+      "!dog": {
+        func: this.videoCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isForAll,
+      },
+      "!heal": {
         func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
@@ -102,20 +72,14 @@ export default {
         userCoolDown: 15000,
         auth: this.isForAll,
       },
-      "!slap": {
-        func: this.imageSwitchCommand,
-        globalCoolDown: 5000,
+      "!lurk": {
+        func: this.soundCommand,
+        globalCoolDown: 0,
         userCoolDown: 15000,
         auth: this.isForAll,
       },
-      "!plat": {
-        func: this.videoCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!dog": {
-        func: this.videoCommand,
+      "!nice": {
+        func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
         auth: this.isForAll,
@@ -125,6 +89,54 @@ export default {
         globalCoolDown: 5000,
         userCoolDown: 15000,
         auth: this.isForAll,
+      },
+      "!pet": {
+        func: this.petTurtleDog,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isForAll,
+      },
+      "!rollin": {
+        func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isForAll,
+      },
+      "!slap": {
+        func: this.imageSwitchCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isForAll,
+      },
+      "!uwu": {
+        func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isForAll,
+      },
+      "!alert": {
+        func: this.alertCommand,
+        globalCoolDown: 0,
+        userCoolDown: 0,
+        auth: this.isModSubscriberVip,
+      },
+      "!bin": {
+        func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isModSubscriberVip,
+      },
+      "!fin": {
+        func: this.finCommand,
+        globalCoolDown: 0,
+        userCoolDown: 0,
+        auth: this.isModSubscriberVip,
+      },
+      "!plat": {
+        func: this.videoCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isModSubscriberVip,
       },
       "!ss": {
         func: this.replaySubSound,
@@ -138,11 +150,11 @@ export default {
         userCoolDown: 15000,
         auth: this.isVip,
       },
-      "!pet": {
-        func: this.petTurtleDog,
+      "!hoya": {
+        func: this.videoCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
-        auth: this.isForAll,
+        auth: this.isVip,
       },
     };
 
@@ -222,6 +234,11 @@ export default {
 
       if (bits == 50) {
         this.eventQueue.add(this.playVideo, ["apparently"]);
+        return;
+      }
+
+      if (bits == 100) {
+        this.eventQueue.add(this.playVideo, ["hoya"]);
         return;
       }
 
@@ -513,7 +530,7 @@ export default {
       );
     },
     isVip(context) {
-      return context.badges.vip;
+      return context.badges.vip || context.username === this.broadcaster;
     },
     isForAll(context) {
       return true;
