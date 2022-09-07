@@ -523,27 +523,22 @@ export default {
 </script>
 
 <template>
-  <transition name="bounce">
-    <div class="bg-special rounded absolute left-3 bottom-3" v-if="show">
-      <h1
-        class="special-text flex justify-center items-center uppercase whitespace-nowrap"
-        v-html="text"
-      ></h1>
-    </div>
-  </transition>
+  <div class="cyberpunk2077 absolute left-1 bottom-1" v-if="show">
+    <h1 class="text-pink whitespace-nowrap cyberpunk" v-html="text"></h1>
+  </div>
   <transition name="bounce">
     <div
       class="absolute w-full h-full flex flex-col justify-center items-center"
       v-if="modal.active"
     >
-      <video v-if="modal.isVideo" autoplay class="w-1/5 rounded">
+      <video v-if="modal.isVideo" autoplay class="w-1/5 cyberpunk dotted">
         <source :src="modal.src" />
       </video>
-      <img v-else class="w-1/5 rounded" :src="modal.src" />
-      <div class="bg-special rounded mt-1">
-        <p class="special-text uppercase">
+      <img v-else class="w-1/5 cyberpunk dotted" :src="modal.src" />
+      <div class="cyberpunk2077 mt-1">
+        <h2 class="text-pink cyberpunk">
           {{ modal.text }}
-        </p>
+        </h2>
       </div>
     </div>
   </transition>
@@ -552,12 +547,14 @@ export default {
     id="video-wrapper"
   >
     <video
+      v-if="activeVideo !== ''"
       :key="activeVideo"
       id="active-video"
+      class="cyberpunk dotted"
       autoplay
       style="max-width: 1000px; max-height: 1000px"
     >
-      <source v-if="activeVideo !== ''" :src="`/videos/${activeVideo}.mp4`" />
+      <source :src="`/videos/${activeVideo}.mp4`" />
     </video>
   </div>
   <img v-if="showTTS" class="absolute bottom-20 left-3" src="/images/tts.gif" />

@@ -6,6 +6,7 @@ module.exports = {
       colors: {
         blue: "#38e9e9",
         yellow: "#ffff5a",
+        pink: "#ff66cc",
       },
       fontFamily: {
         sans: ["Denk One", "sans-serif"],
