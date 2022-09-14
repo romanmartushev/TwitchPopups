@@ -555,9 +555,9 @@ export default {
 </script>
 
 <template>
-  <div class="cyberpunk2077 absolute left-1 bottom-1" v-if="show">
+  <div class="absolute left-1 bottom-1" v-if="show">
     <h1
-      class="text-pink flex justify-center items-center whitespace-nowrap cyberpunk"
+      class="p-2 pl-6 outline text-pink flex justify-center items-center whitespace-nowrap"
       v-html="text"
     ></h1>
   </div>
@@ -566,19 +566,13 @@ export default {
       class="absolute w-full h-full flex flex-col justify-center items-center"
       v-if="modal.active"
     >
-      <video
-        v-if="modal.isVideo"
-        autoplay
-        class="w-1/5 cyberpunk-border dotted"
-      >
+      <video v-if="modal.isVideo" autoplay class="w-1/5">
         <source :src="modal.src" />
       </video>
-      <img v-else class="w-1/5 cyberpunk-border dotted" :src="modal.src" />
-      <div class="cyberpunk2077 mt-1">
-        <h2 class="text-pink cyberpunk">
-          {{ modal.text }}
-        </h2>
-      </div>
+      <img v-else class="w-1/5" :src="modal.src" />
+      <h2 class="mt-1 p-2 pl-6 outline text-pink">
+        {{ modal.text }}
+      </h2>
     </div>
   </transition>
   <div
@@ -586,10 +580,10 @@ export default {
     id="video-wrapper"
   >
     <video
-      v-if="activeVideo !== ''"
       :key="activeVideo"
+      v-if="activeVideo"
       id="active-video"
-      class="cyberpunk-border dotted"
+      class="vidClip"
       autoplay
       style="max-width: 1000px; max-height: 1000px"
     >
