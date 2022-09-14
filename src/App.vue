@@ -246,24 +246,14 @@ export default {
         return;
       }
 
-      this.eventQueue.add(this.setModal, [
-        true,
-        "",
-        `${userstate["display-name"]} just cheered ${bits} bits!!!`,
-      ]);
-
       const beginning = `${userstate["display-name"]} just cheered ${bits} bits `;
       const cleaned = message.replace(/(Cheer\d+)/g, "");
       this.eventQueue.add(this.textToSpeech, [beginning + cleaned]);
     },
     onRaidedHandler(channel, username, viewers) {
-      this.eventQueue.add(this.setModal, [
-        true,
-        "/images/raid.gif",
+      this.eventQueue.add(this.textToSpeech, [
         `${username} just raided with ${viewers} viewers!!!`,
       ]);
-
-      this.eventQueue.add(this.playSound, ["/sounds/raid.mp3"]);
     },
     onSubscriptionHandler(channel, username, method, message, userstate) {
       const event = `${username} just subbed!!!`;
@@ -290,8 +280,6 @@ export default {
       this.baseSub(event);
     },
     baseSub(event, message = "") {
-      this.eventQueue.add(this.setModal, [true, "/images/sub.gif", event]);
-      this.eventQueue.add(this.playSound, ["/sounds/sub.mp3"]);
       let text = event;
       if (message) {
         text += message;
