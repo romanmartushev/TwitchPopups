@@ -20,12 +20,10 @@ export default {
       showTTS: false,
       text: "",
       activeVideo: "",
-      activeImage: "",
       subs: useSubStore(),
       vips: useVipStore(),
       cooldown: useCoolDownStore(),
       auth_token: "",
-      audioMuted: true,
       modal: {
         active: false,
         src: "",
@@ -98,12 +96,6 @@ export default {
       },
       "!rollin": {
         func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!slap": {
-        func: this.imageSwitchCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
         auth: this.isForAll,
@@ -353,25 +345,6 @@ export default {
           });
       }
     },
-    imageSwitchCommand(context, textContent) {
-      const vm = this;
-      const command =
-        textContent.indexOf(" ") > -1
-          ? textContent.substring(1, textContent.indexOf(" "))
-          : textContent.substring(1);
-      return new Promise((resolve) => {
-        vm.activeImage = `before-${command}.png`;
-        setTimeout(() => {
-          const audio = new Audio(`/sounds/${command}.mp3`);
-          audio.play();
-          vm.activeImage = `after-${command}.png`;
-          audio.onended = () => {
-            vm.activeImage = "";
-            resolve();
-          };
-        }, 1000);
-      });
-    },
     videoCommand(context, textContent) {
       const videoName =
         textContent.indexOf(" ") > -1
@@ -592,11 +565,4 @@ export default {
   </div>
   <img v-if="showTTS" class="absolute bottom-20 left-3" src="/images/tts.gif" />
   <audio id="tts-audio" />
-  <img
-    v-if="activeImage"
-    :key="activeImage"
-    class="absolute bottom-0 right-20"
-    style="max-height: 300px"
-    :src="'/images/' + activeImage"
-  />
 </template>
