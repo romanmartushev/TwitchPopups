@@ -516,12 +516,14 @@ export default {
 </script>
 
 <template>
-  <div class="absolute left-1 bottom-1" v-if="show">
-    <h1
-      class="p-2 pl-6 outline text-pink flex justify-center items-center whitespace-nowrap"
-      v-html="text"
-    ></h1>
-  </div>
+  <transition name="bounce">
+    <div class="absolute alert-bg left-1 bottom-1" v-if="show">
+      <h1
+        class="p-2 pl-6 text-pink flex justify-center items-center whitespace-nowrap"
+        v-html="text"
+      ></h1>
+    </div>
+  </transition>
   <transition name="bounce">
     <div
       class="absolute w-full h-full flex flex-col justify-center items-center"

@@ -1,20 +1,11 @@
-.mainBackground {
-    background: linear-gradient(50deg, #062638, #1a2521);
-    clip-path: polygon(0 0, 100% 0%, 100% 100%, 34px 100%, 0 calc(100% - 34px));
-    font-size: 25px;
-}
-
 .vidClip {
     clip-path: polygon(0 0, 100% 0%, 100% 100%, 30px 100%, 0 calc(100% - 30px));
     font-size: 25px;
 }
 
 .outline {
-    background: linear-gradient( 50deg, #fdec00, #4ef6f1);
+    background: linear-gradient(#062638, #1a2521) padding-box, linear-gradient(to right, #fdec00, #4ef6f1) border-box;
     clip-path: polygon(0 0, 100% 0%, 100% 100%, 32px 100%, 0 calc(100% - 32px));
+    border: 4px solid transparent;
     font-size: 25px;
-}
-.outline img {
-    width: 40px;
-    margin: 0 10px 0 10px;
 }
