@@ -165,7 +165,6 @@ export default {
     this.client = new tmi.client(this.opts);
     this.client.on("message", this.onMessageHandler);
     this.client.on("cheer", this.onCheerHandler);
-    this.client.on("raided", this.onRaidedHandler);
     this.client.on("anongiftpaidupgrade", this.onAnonGiftPaidUpgrade);
     this.client.on("giftpaidupgrade", this.onGiftPaidUpgrade);
     this.client.on("resub", this.onReSub);
@@ -249,11 +248,6 @@ export default {
       const beginning = `${userstate["display-name"]} just cheered ${bits} bits `;
       const cleaned = message.replace(/(Cheer\d+)/g, "");
       this.eventQueue.add(this.textToSpeech, [beginning + cleaned]);
-    },
-    onRaidedHandler(channel, username, viewers) {
-      this.eventQueue.add(this.textToSpeech, [
-        `${username} just raided with ${viewers} viewers!!!`,
-      ]);
     },
     onSubscriptionHandler(channel, username, method, message, userstate) {
       const event = `${username} just subbed!!!`;
