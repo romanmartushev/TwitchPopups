@@ -513,7 +513,7 @@ export default {
   <transition name="bounce">
     <div class="absolute alert-bg left-1 bottom-1" v-if="show">
       <h1
-        class="p-2 pl-6 text-pink flex justify-center items-center whitespace-nowrap"
+        class="p-2 pl-6 text-pink uppercase flex justify-center items-center whitespace-nowrap"
         v-html="text"
       ></h1>
     </div>
