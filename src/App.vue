@@ -12,6 +12,14 @@ export default {
       client: null,
       opts: {
         channels: [import.meta.env.VITE_TWITCH_CHANNEL],
+        options: {
+          clientId: import.meta.env.VITE_CLIENT_ID,
+          skipUpdatingEmotesets: true,
+        },
+        identity: {
+          username: import.meta.env.VITE_TWITCH_CHANNEL,
+          password: import.meta.env.VITE_TWITCH_OAUTH,
+        },
       },
       broadcaster: import.meta.env.VITE_TWITCH_CHANNEL,
       activeCommands: {},
@@ -34,6 +42,12 @@ export default {
   },
   async mounted() {
     this.activeCommands = {
+      "!alerts": {
+        func: this.sayAlerts,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isForAll,
+      },
       "!bell": {
         func: this.soundCommand,
         globalCoolDown: 5000,
@@ -111,6 +125,7 @@ export default {
         globalCoolDown: 0,
         userCoolDown: 0,
         auth: this.isModSubscriberVip,
+        description: "[message]",
       },
       "!bin": {
         func: this.soundCommand,
@@ -123,18 +138,13 @@ export default {
         globalCoolDown: 0,
         userCoolDown: 0,
         auth: this.isModSubscriberVip,
+        description: "[message]",
       },
       "!plat": {
         func: this.videoCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
         auth: this.isModSubscriberVip,
-      },
-      "!ss": {
-        func: this.replaySubSound,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isModVip,
       },
       "!vip": {
         func: this.vipCommand,
@@ -158,6 +168,12 @@ export default {
         func: this.videoCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
+        auth: this.isBroadcaster,
+      },
+      "!ss": {
+        func: this.replaySubSound,
+        globalCoolDown: 0,
+        userCoolDown: 0,
         auth: this.isBroadcaster,
       },
     };
@@ -279,6 +295,33 @@ export default {
         text += message;
       }
       this.eventQueue.add(this.textToSpeech, [text]);
+    },
+    sayAlerts(context, textContent) {
+      const vm = this;
+      const alerts = function (auth) {
+        let message = "";
+        Object.keys(vm.activeCommands).forEach((key) => {
+          if (vm.activeCommands[key].auth === auth) {
+            if (vm.activeCommands[key].description) {
+              message += `${key} ${vm.activeCommands[key].description}, `;
+            } else {
+              message += `${key}, `;
+            }
+          }
+        });
+        return message;
+      };
+      this.client.say(
+        this.broadcaster,
+        `For Everyone: ${alerts(this.isForAll)}`
+      );
+
+      this.client.say(
+        this.broadcaster,
+        `For Subs: ${alerts(this.isModSubscriberVip)}`
+      );
+
+      this.client.say(this.broadcaster, `For VIPS: ${alerts(this.isVip)}`);
     },
     alertCommand(context, textContent) {
       const formattedText = this.formatEmotes(
