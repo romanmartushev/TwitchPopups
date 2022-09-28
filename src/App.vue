@@ -48,6 +48,12 @@ export default {
         userCoolDown: 15000,
         auth: this.isForAll,
       },
+      "!bits": {
+        func: this.sayBits,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isForAll,
+      },
       "!bell": {
         func: this.soundCommand,
         globalCoolDown: 5000,
@@ -322,6 +328,12 @@ export default {
       );
 
       this.client.say(this.broadcaster, `For VIPS: ${alerts(this.isVip)}`);
+    },
+    sayBits(context, textContent) {
+      this.client.say(
+        this.broadcaster,
+        "Bits/Cheer Menu: 1 -> Infinite = TTS Enabled, 20 = Friend, 50 = Apparently, 100 = Hoyaaa!️"
+      );
     },
     alertCommand(context, textContent) {
       const formattedText = this.formatEmotes(
