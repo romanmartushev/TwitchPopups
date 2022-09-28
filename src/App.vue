@@ -341,7 +341,12 @@ export default {
       const name = textContent.substring(5);
       if (this.subs.has(name)) {
         const sub = this.subs.getSubscriber(name);
-        this.subSound(sub);
+        this.eventQueue.add(this.setModal, [
+          true,
+          sub.profile_image_url,
+          `${sub.display_name} has arrived!!!`,
+        ]);
+        this.eventQueue.add(this.playSound, [`/subSounds/${sub.username}.mp3`]);
       }
     },
     subSound(context) {
@@ -360,6 +365,8 @@ export default {
           })
           .then((response) => {
             const activeSub = response.data.data[0];
+            context.profile_image_url = activeSub.profile_image_url;
+            context.display_name = activeSub.display_name;
             vm.eventQueue.add(vm.setModal, [
               true,
               activeSub.profile_image_url,
