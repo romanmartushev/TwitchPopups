@@ -89,8 +89,7 @@ export default {
         globalCoolDown: 5000,
         userCoolDown: 15000,
         auth: this.isForAll,
-        description:
-          "Ryan Reynolds look alike, Kid Snatcher, is a Monk Priest trained in Sorcery. When he isn't performing magic at a child's birthday party he is most likely stalking the night with his master key. Hide your children, here he comes.",
+        say: "Ryan Reynolds look alike, Kid Snatcher, is a Monk trained in Sorcery. When he isn't performing magic at a child's birthday party he is most likely stalking the night with his master key and FAP ring.",
       },
       "!lost": {
         func: this.soundCommand,
@@ -344,10 +343,7 @@ export default {
       );
     },
     sayCommand(context, textContent) {
-      this.client.say(
-        this.broadcaster,
-        this.activeCommands[textContent].description
-      );
+      this.client.say(this.broadcaster, this.activeCommands[textContent].say);
     },
     alertCommand(context, textContent) {
       const formattedText = this.formatEmotes(
