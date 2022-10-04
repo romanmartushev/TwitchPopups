@@ -115,12 +115,6 @@ export default {
         userCoolDown: 15000,
         auth: this.isForAll,
       },
-      "!pet": {
-        func: this.petTurtleDog,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
       "!rollin": {
         func: this.soundCommand,
         globalCoolDown: 5000,
@@ -534,9 +528,6 @@ export default {
         audio.play();
         audio.onended = resolve;
       });
-    },
-    petTurtleDog() {
-      return this.setModal(true, "/images/pet-turtle-dog.gif", "GOOD BOIII!!!");
     },
     setModal(active = false, img = "", text = "", time = 5000) {
       const extension = img.split(".");
