@@ -148,8 +148,8 @@ export default {
       },
       "!fin": {
         func: this.finCommand,
-        globalCoolDown: 0,
-        userCoolDown: 0,
+        globalCoolDown: 15000,
+        userCoolDown: 15000,
         auth: this.isModSubscriberVip,
         description: "[message]",
       },
