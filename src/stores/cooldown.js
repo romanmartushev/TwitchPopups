@@ -5,6 +5,8 @@ export const useCoolDownStore = defineStore({
   state: () => ({
     all: {},
     user: {},
+    allTimer: {},
+    userTimer: {},
   }),
   actions: {
     addGlobal(command, attributes) {
@@ -16,12 +18,19 @@ export const useCoolDownStore = defineStore({
       };
       const event = wrapFunction(vm.removeGlobal, [command]);
       this.all[command] = setTimeout(event, attributes.globalCoolDown);
+      this.allTimer[command] = new Date().getTime();
     },
     removeGlobal(command) {
+      delete this.allTimer[command];
       return delete this.all[command];
     },
     hasGlobal(command) {
       return Object.prototype.hasOwnProperty.call(this.all, command);
+    },
+    getGlobalTime(command, time) {
+      return Math.floor(
+        (time - (new Date().getTime() - this.allTimer[command])) / 1000
+      );
     },
     addUser(command, attributes, username) {
       const vm = this;
@@ -33,10 +42,15 @@ export const useCoolDownStore = defineStore({
       if (!Object.prototype.hasOwnProperty.call(this.user, username)) {
         this.user[username] = {};
       }
+      if (!Object.prototype.hasOwnProperty.call(this.userTimer, username)) {
+        this.userTimer[username] = {};
+      }
       const event = wrapFunction(vm.removeUser, [username, command]);
       this.user[username][command] = setTimeout(event, attributes.userCoolDown);
+      this.userTimer[username][command] = new Date().getTime();
     },
     removeUser(username, command) {
+      delete this.userTimer[username][command];
       return delete this.user[username][command];
     },
     hasUser(username, command) {
@@ -47,6 +61,12 @@ export const useCoolDownStore = defineStore({
         );
       }
       return false;
+    },
+    getUserTime(username, command, time) {
+      return Math.floor(
+        (time - (new Date().getTime() - this.userTimer[username][command])) /
+          1000
+      );
     },
   },
   persist: {

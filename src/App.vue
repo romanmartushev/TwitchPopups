@@ -129,8 +129,8 @@ export default {
       },
       "!alert": {
         func: this.alertCommand,
-        globalCoolDown: 0,
-        userCoolDown: 0,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
         auth: this.isModSubscriberVip,
         description: "[message]",
       },
@@ -143,7 +143,7 @@ export default {
       "!fin": {
         func: this.finCommand,
         globalCoolDown: 15000,
-        userCoolDown: 15000,
+        userCoolDown: 30000,
         auth: this.isModSubscriberVip,
         description: "[message]",
       },
@@ -226,6 +226,8 @@ export default {
       console.log(`* Connected to ${addr}:${port}`);
     },
     onMessageHandler(target, context, msg, self) {
+      this.subSound(context);
+
       const rawText = msg.trim();
       const command =
         rawText.indexOf(" ") > -1
@@ -236,25 +238,42 @@ export default {
         command in this.activeCommands &&
         this.activeCommands[command].auth(context)
       ) {
-        if (
-          (!this.cooldown.hasGlobal(command) &&
-            !this.cooldown.hasUser(context.username, command)) ||
-          this.isModVip(context)
-        ) {
-          this.eventQueue.add(this.activeCommands[command].func, [
-            context,
-            rawText,
-          ]);
-          this.cooldown.addUser(
-            command,
-            this.activeCommands[command],
-            context.username
-          );
-          this.cooldown.addGlobal(command, this.activeCommands[command]);
+        if (!this.isModVip(context)) {
+          if (this.cooldown.hasGlobal(command)) {
+            const seconds = this.cooldown.getGlobalTime(
+              command,
+              this.activeCommands[command].globalCoolDown
+            );
+            this.client.say(
+              this.broadcaster,
+              `The ${command} command is on a global cooldown. Try again in ${seconds} seconds.`
+            );
+            return;
+          }
+          if (this.cooldown.hasUser(context.username, command)) {
+            const seconds = this.cooldown.getUserTime(
+              context.username,
+              command,
+              this.activeCommands[command].userCoolDown
+            );
+            this.client.say(
+              this.broadcaster,
+              `${context.username}, you have used the ${command} command too soon. Try again in ${seconds} seconds.`
+            );
+            return;
+          }
         }
+        this.eventQueue.add(this.activeCommands[command].func, [
+          context,
+          rawText,
+        ]);
+        this.cooldown.addUser(
+          command,
+          this.activeCommands[command],
+          context.username
+        );
+        this.cooldown.addGlobal(command, this.activeCommands[command]);
       }
-
-      this.subSound(context);
     },
     onCheerHandler(channel, userstate, message) {
       const bits = userstate.bits;
