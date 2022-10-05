@@ -358,7 +358,7 @@ export default {
     sayBits(context, textContent) {
       this.client.say(
         this.broadcaster,
-        "Bits/Cheer Menu: 1 -> Infinite = TTS Enabled, 20 = Friend, 50 = Apparently, 100 = Hoyaaa!️"
+        "Bits/Cheer Menu: 1 (Cheer1) -> Infinite = TTS Enabled, 20 (Cheer20) = Friend, 50 (Cheer50) = Apparently, 100 (Cheer100) = Hoyaaa!️"
       );
     },
     sayCommand(context, textContent) {
