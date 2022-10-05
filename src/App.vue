@@ -239,17 +239,6 @@ export default {
         this.activeCommands[command].auth(context)
       ) {
         if (!this.isModVip(context)) {
-          if (this.cooldown.hasGlobal(command)) {
-            const seconds = this.cooldown.getGlobalTime(
-              command,
-              this.activeCommands[command].globalCoolDown
-            );
-            this.client.say(
-              this.broadcaster,
-              `The ${command} command is on a global cooldown. Try again in ${seconds} seconds.`
-            );
-            return;
-          }
           if (this.cooldown.hasUser(context.username, command)) {
             const seconds = this.cooldown.getUserTime(
               context.username,
@@ -259,6 +248,17 @@ export default {
             this.client.say(
               this.broadcaster,
               `${context.username}, you have used the ${command} command too soon. Try again in ${seconds} seconds.`
+            );
+            return;
+          }
+          if (this.cooldown.hasGlobal(command)) {
+            const seconds = this.cooldown.getGlobalTime(
+              command,
+              this.activeCommands[command].globalCoolDown
+            );
+            this.client.say(
+              this.broadcaster,
+              `The ${command} command is on a global cooldown. Try again in ${seconds} seconds.`
             );
             return;
           }
