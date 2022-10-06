@@ -5,6 +5,7 @@ import { useSubStore } from "./stores/subs";
 import axios from "axios";
 import { useVipStore } from "./stores/vips";
 import { useCoolDownStore } from "./stores/cooldown";
+import { useJailStore } from "./stores/jail";
 
 export default {
   data() {
@@ -31,6 +32,7 @@ export default {
       subs: useSubStore(),
       vips: useVipStore(),
       cooldown: useCoolDownStore(),
+      jail: useJailStore(),
       auth_token: "",
       modal: {
         active: false,
@@ -167,20 +169,32 @@ export default {
       },
       "!hoya": {
         func: this.videoCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
+        globalCoolDown: 0,
+        userCoolDown: 0,
         auth: this.isVip,
       },
       "!apparently": {
         func: this.videoCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
+        globalCoolDown: 0,
+        userCoolDown: 0,
         auth: this.isBroadcaster,
       },
       "!friend": {
         func: this.videoCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
+        globalCoolDown: 0,
+        userCoolDown: 0,
+        auth: this.isBroadcaster,
+      },
+      "!guilty": {
+        func: this.guiltySentence,
+        globalCoolDown: 0,
+        userCoolDown: 0,
+        auth: this.isBroadcaster,
+      },
+      "!release": {
+        func: this.releaseFromJail,
+        globalCoolDown: 0,
+        userCoolDown: 0,
         auth: this.isBroadcaster,
       },
       "!ss": {
@@ -226,53 +240,55 @@ export default {
       console.log(`* Connected to ${addr}:${port}`);
     },
     onMessageHandler(target, context, msg, self) {
-      this.subSound(context);
+      if (this.jail.isInnocent(context)) {
+        this.subSound(context);
 
-      const rawText = msg.trim();
-      const command =
-        rawText.indexOf(" ") > -1
-          ? rawText.substring(0, rawText.indexOf(" "))
-          : rawText;
+        const rawText = msg.trim();
+        const command =
+          rawText.indexOf(" ") > -1
+            ? rawText.substring(0, rawText.indexOf(" "))
+            : rawText;
 
-      if (
-        command in this.activeCommands &&
-        this.activeCommands[command].auth(context)
-      ) {
-        if (!this.isModVip(context)) {
-          if (this.cooldown.hasUser(context.username, command)) {
-            const seconds = this.cooldown.getUserTime(
-              context.username,
-              command,
-              this.activeCommands[command].userCoolDown
-            );
-            this.client.say(
-              this.broadcaster,
-              `${context.username}, you have used the ${command} command too soon. Try again in ${seconds} seconds.`
-            );
-            return;
+        if (
+          command in this.activeCommands &&
+          this.activeCommands[command].auth(context)
+        ) {
+          if (!this.isModVip(context)) {
+            if (this.cooldown.hasUser(context.username, command)) {
+              const seconds = this.cooldown.getUserTime(
+                context.username,
+                command,
+                this.activeCommands[command].userCoolDown
+              );
+              this.client.say(
+                this.broadcaster,
+                `${context.username}, you have used the ${command} command too soon. Try again in ${seconds} seconds.`
+              );
+              return;
+            }
+            if (this.cooldown.hasGlobal(command)) {
+              const seconds = this.cooldown.getGlobalTime(
+                command,
+                this.activeCommands[command].globalCoolDown
+              );
+              this.client.say(
+                this.broadcaster,
+                `The ${command} command is on a global cooldown. Try again in ${seconds} seconds.`
+              );
+              return;
+            }
           }
-          if (this.cooldown.hasGlobal(command)) {
-            const seconds = this.cooldown.getGlobalTime(
-              command,
-              this.activeCommands[command].globalCoolDown
-            );
-            this.client.say(
-              this.broadcaster,
-              `The ${command} command is on a global cooldown. Try again in ${seconds} seconds.`
-            );
-            return;
-          }
+          this.eventQueue.add(this.activeCommands[command].func, [
+            context,
+            rawText,
+          ]);
+          this.cooldown.addUser(
+            command,
+            this.activeCommands[command],
+            context.username
+          );
+          this.cooldown.addGlobal(command, this.activeCommands[command]);
         }
-        this.eventQueue.add(this.activeCommands[command].func, [
-          context,
-          rawText,
-        ]);
-        this.cooldown.addUser(
-          command,
-          this.activeCommands[command],
-          context.username
-        );
-        this.cooldown.addGlobal(command, this.activeCommands[command]);
       }
     },
     onCheerHandler(channel, userstate, message) {
@@ -570,6 +586,15 @@ export default {
         }, time);
         resolve();
       });
+    },
+    guiltySentence(context, textContent) {
+      const username = textContent.substring(9);
+      if (username !== this.broadcaster) {
+        this.jail.guilty(username);
+      }
+    },
+    releaseFromJail(context, textContent) {
+      this.jail.innocent(textContent.substring(10));
     },
     isModSubscriberVip(context) {
       return (

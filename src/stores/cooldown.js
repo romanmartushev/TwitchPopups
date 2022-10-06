@@ -71,6 +71,6 @@ export const useCoolDownStore = defineStore({
   },
   persist: {
     storage: window.sessionStorage,
-    paths: ["coolDown"],
+    paths: ["all", "user", "allTimer", "userTimer"],
   },
 });
