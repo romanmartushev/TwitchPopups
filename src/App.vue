@@ -5,7 +5,7 @@ import { useSubStore } from "./stores/subs";
 import axios from "axios";
 import { useVipStore } from "./stores/vips";
 import { useCoolDownStore } from "./stores/cooldown";
-import { useJailStore } from "./stores/jail";
+import { useCourtStore } from "./stores/court";
 
 export default {
   data() {
@@ -32,7 +32,7 @@ export default {
       subs: useSubStore(),
       vips: useVipStore(),
       cooldown: useCoolDownStore(),
-      jail: useJailStore(),
+      court: useCourtStore(),
       auth_token: "",
       modal: {
         active: false,
@@ -190,12 +190,28 @@ export default {
         globalCoolDown: 0,
         userCoolDown: 0,
         auth: this.isBroadcaster,
+        arguments: "[@name]",
+      },
+      "!innocent": {
+        func: this.innocentSentence,
+        globalCoolDown: 0,
+        userCoolDown: 0,
+        auth: this.isBroadcaster,
+        arguments: "[@name]",
       },
       "!release": {
         func: this.releaseFromJail,
         globalCoolDown: 0,
         userCoolDown: 0,
         auth: this.isBroadcaster,
+        arguments: "[@name]",
+      },
+      "!trial": {
+        func: this.courtTrial,
+        globalCoolDown: 0,
+        userCoolDown: 0,
+        auth: this.isBroadcaster,
+        arguments: "[@name]",
       },
       "!ss": {
         func: this.replaySubSound,
@@ -240,55 +256,83 @@ export default {
       console.log(`* Connected to ${addr}:${port}`);
     },
     onMessageHandler(target, context, msg, self) {
-      if (this.jail.isInnocent(context)) {
-        this.subSound(context);
+      if (this.court.inSession()) {
+        this.onTrialHandler(target, context, msg, self);
+        return;
+      }
+      if (this.court.isGuilty(context)) {
+        return;
+      }
+      this.subSound(context);
 
-        const rawText = msg.trim();
-        const command =
-          rawText.indexOf(" ") > -1
-            ? rawText.substring(0, rawText.indexOf(" "))
-            : rawText;
+      const rawText = msg.trim();
+      const command =
+        rawText.indexOf(" ") > -1
+          ? rawText.substring(0, rawText.indexOf(" "))
+          : rawText;
 
-        if (
-          command in this.activeCommands &&
-          this.activeCommands[command].auth(context)
-        ) {
-          if (!this.isModVip(context)) {
-            if (this.cooldown.hasUser(context.username, command)) {
-              const seconds = this.cooldown.getUserTime(
-                context.username,
-                command,
-                this.activeCommands[command].userCoolDown
-              );
-              this.client.say(
-                this.broadcaster,
-                `${context.username}, you have used the ${command} command too soon. Try again in ${seconds} seconds.`
-              );
-              return;
-            }
-            if (this.cooldown.hasGlobal(command)) {
-              const seconds = this.cooldown.getGlobalTime(
-                command,
-                this.activeCommands[command].globalCoolDown
-              );
-              this.client.say(
-                this.broadcaster,
-                `The ${command} command is on a global cooldown. Try again in ${seconds} seconds.`
-              );
-              return;
-            }
+      if (
+        command in this.activeCommands &&
+        this.activeCommands[command].auth(context)
+      ) {
+        if (!this.isModVip(context)) {
+          if (this.cooldown.hasUser(context.username, command)) {
+            const seconds = this.cooldown.getUserTime(
+              context.username,
+              command,
+              this.activeCommands[command].userCoolDown
+            );
+            this.client.say(
+              this.broadcaster,
+              `${context.username}, you have used the ${command} command too soon. Try again in ${seconds} seconds.`
+            );
+            return;
           }
-          this.eventQueue.add(this.activeCommands[command].func, [
-            context,
-            rawText,
-          ]);
-          this.cooldown.addUser(
-            command,
-            this.activeCommands[command],
-            context.username
-          );
-          this.cooldown.addGlobal(command, this.activeCommands[command]);
+          if (this.cooldown.hasGlobal(command)) {
+            const seconds = this.cooldown.getGlobalTime(
+              command,
+              this.activeCommands[command].globalCoolDown
+            );
+            this.client.say(
+              this.broadcaster,
+              `The ${command} command is on a global cooldown. Try again in ${seconds} seconds.`
+            );
+            return;
+          }
         }
+        this.eventQueue.add(this.activeCommands[command].func, [
+          context,
+          rawText,
+        ]);
+        this.cooldown.addUser(
+          command,
+          this.activeCommands[command],
+          context.username
+        );
+        this.cooldown.addGlobal(command, this.activeCommands[command]);
+      }
+    },
+    onTrialHandler(target, context, msg, self) {
+      if (!this.court.voted(context)) {
+        if (msg === "VoteYea" || msg === "yes") {
+          this.court.guiltyCountAdd();
+          this.court.juryAdd(context);
+        }
+        if (msg === "VoteNay" || msg === "no") {
+          this.court.innocentCountAdd();
+          this.court.juryAdd(context);
+        }
+      }
+      if (context.username === this.broadcaster && msg === "!end") {
+        this.court.inSession(false);
+        this.client.say(
+          this.broadcaster,
+          "The jury has decided your fate, the verdict is:"
+        );
+        this.client.say(
+          this.broadcaster,
+          `!${this.court.getVerdict()} @${this.court.getAccused()}`
+        );
       }
     },
     onCheerHandler(channel, userstate, message) {
@@ -587,14 +631,26 @@ export default {
         resolve();
       });
     },
+    courtTrial(context, textContent) {
+      this.court.inSession(true);
+      this.court.setAccused(textContent.substring(8));
+      this.client.say(
+        this.broadcaster,
+        `Court is in session!!! The Accused: ${this.court.getAccused()} stands trial. You decide their fate: VoteYea or VoteNay .`
+      );
+    },
     guiltySentence(context, textContent) {
       const username = textContent.substring(9);
       if (username !== this.broadcaster) {
-        this.jail.guilty(username);
+        this.court.guilty(username);
+        this.client.say(this.broadcaster, `/timeout @${username} 120`);
       }
     },
+    innocentSentence(context, textContent) {
+      this.court.innocent(textContent.substring(11));
+    },
     releaseFromJail(context, textContent) {
-      this.jail.innocent(textContent.substring(10));
+      this.court.innocent(textContent.substring(10));
     },
     isModSubscriberVip(context) {
       return (
@@ -626,6 +682,22 @@ export default {
 
 <template>
   <transition name="bounce">
+    <div
+      class="w-1/2 flex flex-col items-center justify-center m-auto mt-28 bg-black p-10 rounded-2xl"
+      v-if="court.inSession()"
+    >
+      <h1 class="text-pink uppercase text-8xl">Court is in session</h1>
+      <div class="flex w-full justify-around text-5xl text-blue">
+        <p>Guilty: {{ court.getGuiltyCount() }}</p>
+        <p>Innocent: {{ court.getInnocentCount() }}</p>
+      </div>
+      <p class="absolute text-pink uppercase text-center text-8xl">
+        {{ court.getAccused() }}
+      </p>
+      <img class="relative" src="/images/jail.png" />
+    </div>
+  </transition>
+  <transition name="bounce">
     <div class="absolute alert-bg left-1 bottom-1" v-if="show">
       <h1
         class="p-2 pl-6 text-pink uppercase flex justify-center items-center whitespace-nowrap"
@@ -650,10 +722,10 @@ export default {
   <div
     class="flex justify-center items-center h-full justify-self-center"
     id="video-wrapper"
+    v-if="activeVideo"
   >
     <video
       :key="activeVideo"
-      v-if="activeVideo"
       id="active-video"
       class="vidClip"
       autoplay
