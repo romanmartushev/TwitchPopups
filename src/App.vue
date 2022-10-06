@@ -419,7 +419,9 @@ export default {
       return this.playVideo(videoName);
     },
     finCommand(context, textContent) {
-      return this.textToSpeech(textContent.substring(4));
+      if (textContent.substring(4)) {
+        return this.textToSpeech(textContent.substring(4));
+      }
     },
     replaySubSound(context, textContent) {
       const name = textContent.substring(5);
