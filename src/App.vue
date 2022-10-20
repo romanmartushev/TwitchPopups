@@ -643,7 +643,7 @@ export default {
       const username = textContent.substring(9);
       if (username !== this.broadcaster) {
         this.court.guilty(username);
-        this.client.say(this.broadcaster, `/timeout @${username} 120`);
+        this.client.say(this.broadcaster, `/timeout @${username} 180`);
       }
     },
     innocentSentence(context, textContent) {
