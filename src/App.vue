@@ -225,12 +225,6 @@ export default {
         auth: this.isBroadcaster,
         arguments: "[@name]",
       },
-      "!ss": {
-        func: this.replaySubSound,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isBroadcaster,
-      },
     };
 
     this.client = new tmi.client(this.opts);
@@ -352,22 +346,15 @@ export default {
 
       if (bits == 20) {
         this.eventQueue.add(this.playVideo, ["friend"]);
-        return;
-      }
-
-      if (bits == 50) {
+      } else if (bits == 50) {
         this.eventQueue.add(this.playVideo, ["apparently"]);
-        return;
-      }
-
-      if (bits == 100) {
+      } else if (bits == 100) {
         this.eventQueue.add(this.playVideo, ["hoya"]);
-        return;
+      } else {
+        const beginning = `${userstate["display-name"]} just cheered ${bits} bits `;
+        const cleaned = message.replace(/(Cheer\d+)/g, "");
+        this.eventQueue.add(this.textToSpeech, [beginning + cleaned]);
       }
-
-      const beginning = `${userstate["display-name"]} just cheered ${bits} bits `;
-      const cleaned = message.replace(/(Cheer\d+)/g, "");
-      this.eventQueue.add(this.textToSpeech, [beginning + cleaned]);
     },
     onSubscriptionHandler(channel, username, method, message, userstate) {
       const event = `${username} just subbed!!!`;
@@ -493,18 +480,6 @@ export default {
     finCommand(context, textContent) {
       if (textContent.substring(4)) {
         return this.textToSpeech(textContent.substring(4));
-      }
-    },
-    replaySubSound(context, textContent) {
-      const name = textContent.substring(5);
-      if (this.subs.has(name)) {
-        const sub = this.subs.getSubscriber(name);
-        this.eventQueue.add(this.setModal, [
-          true,
-          sub.profile_image_url,
-          `${sub.display_name} has arrived!!!`,
-        ]);
-        this.eventQueue.add(this.playSound, [`/subSounds/${sub.username}.mp3`]);
       }
     },
     subSound(context) {
