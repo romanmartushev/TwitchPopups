@@ -136,6 +136,12 @@ export default {
         auth: this.isModSubscriberVip,
         description: "[message]",
       },
+      "!ah": {
+        func: this.soundCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isModSubscriberVip,
+      },
       "!bin": {
         func: this.soundCommand,
         globalCoolDown: 5000,
@@ -157,6 +163,12 @@ export default {
       },
       "!praise": {
         func: this.videoCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isModSubscriberVip,
+      },
+      "!toptier": {
+        func: this.soundCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
         auth: this.isModSubscriberVip,
