@@ -168,7 +168,7 @@ export default {
         auth: this.isModSubscriberVip,
       },
       "!toptier": {
-        func: this.soundCommand,
+        func: this.videoCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
         auth: this.isModSubscriberVip,
