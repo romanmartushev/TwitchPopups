@@ -623,39 +623,42 @@ export default {
       this.court.setAccused(textContent.substring(8));
       this.client.say(
         this.broadcaster,
-        `Court is in session!!! The Accused: ${this.court.getAccused()} stands trial. You decide their fate: VoteYea or VoteNay .`
+        `Court is in session!!! The Accused: ${this.court.getAccused()} stands trial. You decide their fate, are they guilty? : VoteYea or VoteNay .`
       );
     },
     guiltySentence(context, textContent) {
       const username = textContent.substring(9);
       if (username !== this.broadcaster) {
-        this.court.guilty(username);
+        this.court.guilty(username.toLowerCase());
         this.client.say(this.broadcaster, `/timeout @${username} 180`);
       }
     },
     innocentSentence(context, textContent) {
-      this.court.innocent(textContent.substring(11));
+      this.court.innocent(textContent.substring(11).toLowerCase());
     },
     releaseFromJail(context, textContent) {
-      this.court.innocent(textContent.substring(10));
+      this.court.innocent(textContent.substring(10).toLowerCase());
     },
     isModSubscriberVip(context) {
       return (
         context.mod ||
         context.subscriber ||
-        context.badges.vip ||
+        (context.badges && context.badges.vip) ||
         context.username === this.broadcaster
       );
     },
     isModVip(context) {
       return (
         context.mod ||
-        context.badges.vip ||
+        (context.badges && context.badges.vip) ||
         context.username === this.broadcaster
       );
     },
     isVip(context) {
-      return context.badges.vip || context.username === this.broadcaster;
+      return (
+        (context.badges && context.badges.vip) ||
+        context.username === this.broadcaster
+      );
     },
     isBroadcaster(context) {
       return context.username === this.broadcaster;
