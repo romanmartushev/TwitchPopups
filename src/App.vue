@@ -319,12 +319,18 @@ export default {
       }
     },
     onTrialHandler(target, context, msg, self) {
-      if (!this.court.voted(context)) {
-        if (msg === "VoteYea" || msg === "yes") {
+      if (!this.court.voted(context) && context.username !== this.broadcaster) {
+        if (
+          msg.toLowerCase().includes("voteyea") ||
+          msg.toLowerCase().includes("yes")
+        ) {
           this.court.guiltyCountAdd();
           this.court.juryAdd(context);
         }
-        if (msg === "VoteNay" || msg === "no") {
+        if (
+          msg.toLowerCase().includes("votenay") ||
+          msg.toLowerCase().includes("no")
+        ) {
           this.court.innocentCountAdd();
           this.court.juryAdd(context);
         }
@@ -339,6 +345,7 @@ export default {
           this.broadcaster,
           `!${this.court.getVerdict()} @${this.court.getAccused()}`
         );
+        this.eventQueue.add(this.playVideo, [this.court.getVerdict()]);
       }
     },
     onCheerHandler(channel, userstate, message) {
@@ -623,7 +630,7 @@ export default {
       this.court.setAccused(textContent.substring(8));
       this.client.say(
         this.broadcaster,
-        `Court is in session!!! The Accused: ${this.court.getAccused()} stands trial. You decide their fate, are they guilty? : VoteYea or VoteNay .`
+        `Court is in session!!! The Accused: ${this.court.getAccused()} stands trial. You decide their fate, are they guilty? : VoteYea (yes) or VoteNay (no).`
       );
     },
     guiltySentence(context, textContent) {
