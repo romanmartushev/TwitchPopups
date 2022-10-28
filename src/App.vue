@@ -148,6 +148,12 @@ export default {
         userCoolDown: 15000,
         auth: this.isModSubscriberVip,
       },
+      "!control": {
+        func: this.videoCommand,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
+        auth: this.isModSubscriberVip,
+      },
       "!fin": {
         func: this.finCommand,
         globalCoolDown: 15000,
