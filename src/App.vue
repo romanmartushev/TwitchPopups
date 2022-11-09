@@ -91,7 +91,7 @@ export default {
         globalCoolDown: 5000,
         userCoolDown: 15000,
         auth: this.isForAll,
-        say: "Ryan Reynolds look alike, Kid Snatcher, is a Monk trained in Sorcery. When he isn't performing magic at a child's birthday party he is most likely stalking the night with his master key and FAP ring.",
+        say: "Ryan Reynolds look alike, the Cleric Teen Snatcher, serves Fin Sif, the god of evil. Trained to heal all the ouchies, when he isn't healing teens, he is most likely stalking the night with his petrified gift hoping it turns into something useful to his snatching hobby.",
       },
       "!lost": {
         func: this.soundCommand,
