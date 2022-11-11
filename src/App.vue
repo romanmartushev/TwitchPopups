@@ -179,6 +179,13 @@ export default {
         userCoolDown: 15000,
         auth: this.isModSubscriberVip,
       },
+      "!bonk": {
+        func: this.doNothing,
+        globalCoolDown: 0,
+        userCoolDown: 0,
+        auth: this.isVip,
+        adminText: "Handled on Touch Portal. In event/flow execution.",
+      },
       "!vip": {
         func: this.vipCommand,
         globalCoolDown: 5000,
@@ -608,6 +615,11 @@ export default {
         const audio = new Audio(sound);
         audio.play();
         audio.onended = resolve;
+      });
+    },
+    doNothing() {
+      return new Promise((resolve) => {
+        resolve();
       });
     },
     setModal(active = false, img = "", text = "", time = 5000) {
