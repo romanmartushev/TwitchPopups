@@ -44,115 +44,12 @@ export default {
   },
   async mounted() {
     this.activeCommands = {
-      "!alerts": {
-        func: this.sayAlerts,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!bits": {
-        func: this.sayBits,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!bell": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!damage": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!ding": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!dog": {
-        func: this.videoCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!heal": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!lore": {
-        func: this.sayCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-        say: "Ryan Reynolds look alike, the Cleric Teen Snatcher, serves Fin Sif, the god of evil. Trained to heal all the ouchies, when he isn't healing teens, he is most likely stalking the night with his petrified gift hoping it turns into something useful to his snatching hobby.",
-      },
-      "!lost": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!lurk": {
-        func: this.soundCommand,
-        globalCoolDown: 0,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!nice": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!no": {
-        func: this.videoCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!rollin": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
-      "!uwu": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isForAll,
-      },
       "!alert": {
         func: this.alertCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
         auth: this.isModSubscriberVip,
         description: "[message]",
-      },
-      "!ah": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isModSubscriberVip,
-      },
-      "!bin": {
-        func: this.soundCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isModSubscriberVip,
-      },
-      "!control": {
-        func: this.videoCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isModSubscriberVip,
       },
       "!fin": {
         func: this.finCommand,
@@ -161,54 +58,11 @@ export default {
         auth: this.isModSubscriberVip,
         description: "[message]",
       },
-      "!plat": {
-        func: this.videoCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isModSubscriberVip,
-      },
-      "!praise": {
-        func: this.videoCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isModSubscriberVip,
-      },
-      "!toptier": {
-        func: this.videoCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
-        auth: this.isModSubscriberVip,
-      },
-      "!bonk": {
-        func: this.doNothing,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isVip,
-        adminText: "Handled on Touch Portal. In event/flow execution.",
-      },
       "!vip": {
         func: this.vipCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
         auth: this.isVip,
-      },
-      "!hoya": {
-        func: this.videoCommand,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isVip,
-      },
-      "!apparently": {
-        func: this.videoCommand,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isBroadcaster,
-      },
-      "!friend": {
-        func: this.videoCommand,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isBroadcaster,
       },
       "!guilty": {
         func: this.guiltySentence,
@@ -364,17 +218,9 @@ export default {
     onCheerHandler(channel, userstate, message) {
       const bits = userstate.bits;
 
-      if (bits == 20) {
-        this.eventQueue.add(this.playVideo, ["friend"]);
-      } else if (bits == 50) {
-        this.eventQueue.add(this.playVideo, ["apparently"]);
-      } else if (bits == 100) {
-        this.eventQueue.add(this.playVideo, ["hoya"]);
-      } else {
-        const beginning = `${userstate["display-name"]} just cheered ${bits} bits `;
-        const cleaned = message.replace(/(Cheer\d+)/g, "");
-        this.eventQueue.add(this.textToSpeech, [beginning + cleaned]);
-      }
+      const beginning = `${userstate["display-name"]} just cheered ${bits} bits `;
+      const cleaned = message.replace(/(Cheer\d+)/g, "");
+      this.eventQueue.add(this.textToSpeech, [beginning + cleaned]);
     },
     onSubscriptionHandler(channel, username, method, message, userstate) {
       const event = `${username} just subbed!!!`;
@@ -407,55 +253,12 @@ export default {
       }
       this.eventQueue.add(this.textToSpeech, [text]);
     },
-    sayAlerts(context, textContent) {
-      const vm = this;
-      const alerts = function (auth) {
-        let message = "";
-        Object.keys(vm.activeCommands).forEach((key) => {
-          if (vm.activeCommands[key].auth === auth) {
-            if (vm.activeCommands[key].description) {
-              message += `${key} ${vm.activeCommands[key].description}, `;
-            } else {
-              message += `${key}, `;
-            }
-          }
-        });
-        return message;
-      };
-      this.client.say(
-        this.broadcaster,
-        `For Everyone: ${alerts(this.isForAll)}`
-      );
-
-      this.client.say(
-        this.broadcaster,
-        `For Subs: ${alerts(this.isModSubscriberVip)}`
-      );
-
-      this.client.say(this.broadcaster, `For VIPS: ${alerts(this.isVip)}`);
-    },
-    sayBits(context, textContent) {
-      this.client.say(
-        this.broadcaster,
-        "Bits/Cheer Menu: 1 (Cheer1) -> Infinite = TTS Enabled, 20 (Cheer20) = Friend, 50 (Cheer50) = Apparently, 100 (Cheer100) = Hoyaaa!️"
-      );
-    },
-    sayCommand(context, textContent) {
-      this.client.say(this.broadcaster, this.activeCommands[textContent].say);
-    },
     alertCommand(context, textContent) {
       const formattedText = this.formatEmotes(
         textContent,
         context.emotes
       ).substring(6);
       this.showText(formattedText);
-    },
-    soundCommand(context, textContent) {
-      const sound =
-        textContent.indexOf(" ") > -1
-          ? textContent.substring(1, textContent.indexOf(" "))
-          : textContent.substring(1);
-      return this.playSound(`/sounds/${sound}.mp3`);
     },
     vipCommand(context, textContent) {
       const vm = this;
@@ -489,13 +292,6 @@ export default {
             vm.eventQueue.add(vm.playSound, ["/sounds/vip.mp3"]);
           });
       }
-    },
-    videoCommand(context, textContent) {
-      const videoName =
-        textContent.indexOf(" ") > -1
-          ? textContent.substring(1, textContent.indexOf(" "))
-          : textContent.substring(1);
-      return this.playVideo(videoName);
     },
     finCommand(context, textContent) {
       if (textContent.substring(4)) {
@@ -617,11 +413,6 @@ export default {
         audio.onended = resolve;
       });
     },
-    doNothing() {
-      return new Promise((resolve) => {
-        resolve();
-      });
-    },
     setModal(active = false, img = "", text = "", time = 5000) {
       const extension = img.split(".");
       return new Promise((resolve) => {
@@ -687,9 +478,6 @@ export default {
     },
     isBroadcaster(context) {
       return context.username === this.broadcaster;
-    },
-    isForAll(context) {
-      return true;
     },
   },
 };
