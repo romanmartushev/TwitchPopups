@@ -3,7 +3,6 @@ import { defineStore } from "pinia";
 export const useCourtStore = defineStore({
   id: "court",
   state: () => ({
-    jail: {},
     session: false,
     accused: "",
     guiltyCount: 0,
@@ -23,9 +22,6 @@ export const useCourtStore = defineStore({
     getAccused() {
       return this.accused;
     },
-    isGuilty(context) {
-      return this.jail[context.username];
-    },
     guiltyCountAdd() {
       this.guiltyCount++;
     },
@@ -38,21 +34,17 @@ export const useCourtStore = defineStore({
     getInnocentCount() {
       return this.innocentCount;
     },
-    guilty(name) {
+    guilty() {
       this.session = false;
       this.accused = "";
       this.guiltyCount = 0;
       this.innocentCount = 0;
-      this.jury = {};
-      this.jail[name] = true;
     },
-    innocent(name) {
+    innocent() {
       this.session = false;
       this.accused = "";
       this.guiltyCount = 0;
       this.innocentCount = 0;
-      this.jury = {};
-      delete this.jail[name];
     },
     juryAdd(context) {
       this.jury[context.username] = context;
@@ -66,13 +58,6 @@ export const useCourtStore = defineStore({
   },
   persist: {
     storage: window.sessionStorage,
-    paths: [
-      "accused",
-      "jail",
-      "session",
-      "guiltyCount",
-      "innocentCount",
-      "jury",
-    ],
+    paths: ["accused", "session", "guiltyCount", "innocentCount", "jury"],
   },
 });

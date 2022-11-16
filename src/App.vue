@@ -133,9 +133,6 @@ export default {
         this.onTrialHandler(target, context, msg, self);
         return;
       }
-      if (this.court.isGuilty(context)) {
-        return;
-      }
       this.subSound(context);
 
       const rawText = msg.trim();
@@ -444,16 +441,15 @@ export default {
     },
     guiltySentence(context, textContent) {
       const username = textContent.substring(9);
-      if (username !== this.broadcaster) {
-        this.court.guilty(username.toLowerCase());
-        this.client.say(this.broadcaster, `/timeout @${username} 180`);
-      }
+      this.court.guilty();
+      this.client.say(this.broadcaster, `/timeout @${username} 600`);
     },
     innocentSentence(context, textContent) {
-      this.court.innocent(textContent.substring(11).toLowerCase());
+      this.court.innocent();
     },
     releaseFromJail(context, textContent) {
-      this.court.innocent(textContent.substring(10).toLowerCase());
+      const username = textContent.substring(10);
+      this.client.say(this.broadcaster, `/untimeout @${username}`);
     },
     isModSubscriberVip(context) {
       return (
