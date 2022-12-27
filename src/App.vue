@@ -1,7 +1,6 @@
 <script>
 import EventQueue from "./js/EventQueue";
 import tmi from "tmi.js";
-import { useSubStore } from "./stores/subs";
 import axios from "axios";
 import { useVipStore } from "./stores/vips";
 import { useCoolDownStore } from "./stores/cooldown";
@@ -29,7 +28,6 @@ export default {
       showTTS: false,
       text: "",
       activeVideo: "",
-      subs: useSubStore(),
       vips: useVipStore(),
       cooldown: useCoolDownStore(),
       court: useCourtStore(),
@@ -126,7 +124,6 @@ export default {
         this.onTrialHandler(target, context, msg, self);
         return;
       }
-      this.subSound(context);
 
       const rawText = msg.trim();
       const command =
@@ -248,38 +245,6 @@ export default {
     finCommand(context, textContent) {
       if (textContent.substring(4)) {
         return this.textToSpeech(textContent.substring(4));
-      }
-    },
-    subSound(context) {
-      if (
-        context.subscriber &&
-        !this.subs.has(context.username) &&
-        context.username !== this.broadcaster
-      ) {
-        const vm = this;
-        axios
-          .get(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
-            headers: {
-              Authorization: `Bearer ${this.auth_token}`,
-              "Client-Id": import.meta.env.VITE_CLIENT_ID,
-            },
-          })
-          .then((response) => {
-            const activeSub = response.data.data[0];
-            context.profile_image_url = activeSub.profile_image_url;
-            context.display_name = activeSub.display_name;
-            vm.eventQueue.add(vm.setModal, [
-              true,
-              activeSub.profile_image_url,
-              `${activeSub.display_name} has arrived!!!`,
-            ]);
-            axios.get(`/subSounds/${context.username}.mp3`).then(() => {
-              vm.eventQueue.add(vm.playSound, [
-                `/subSounds/${context.username}.mp3`,
-              ]);
-            });
-          });
-        this.subs.add(context);
       }
     },
     formatEmotes(message, emotes) {
