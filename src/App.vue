@@ -2,7 +2,6 @@
 import EventQueue from "./js/EventQueue";
 import tmi from "tmi.js";
 import axios from "axios";
-import { useCoolDownStore } from "./stores/cooldown";
 import { useCourtStore } from "./stores/court";
 
 export default {
@@ -27,7 +26,6 @@ export default {
       showTTS: false,
       text: "",
       activeVideo: "",
-      cooldown: useCoolDownStore(),
       court: useCourtStore(),
       auth_token: "",
       modal: {
@@ -133,41 +131,10 @@ export default {
         command in this.activeCommands &&
         this.activeCommands[command].auth(context)
       ) {
-        if (!this.isModVip(context)) {
-          if (this.cooldown.hasUser(context.username, command)) {
-            const seconds = this.cooldown.getUserTime(
-              context.username,
-              command,
-              this.activeCommands[command].userCoolDown
-            );
-            this.client.say(
-              this.broadcaster,
-              `${context.username}, you have used the ${command} command too soon. Try again in ${seconds} seconds.`
-            );
-            return;
-          }
-          if (this.cooldown.hasGlobal(command)) {
-            const seconds = this.cooldown.getGlobalTime(
-              command,
-              this.activeCommands[command].globalCoolDown
-            );
-            this.client.say(
-              this.broadcaster,
-              `The ${command} command is on a global cooldown. Try again in ${seconds} seconds.`
-            );
-            return;
-          }
-        }
         this.eventQueue.add(this.activeCommands[command].func, [
           context,
           rawText,
         ]);
-        this.cooldown.addUser(
-          command,
-          this.activeCommands[command],
-          context.username
-        );
-        this.cooldown.addGlobal(command, this.activeCommands[command]);
       }
     },
     onTrialHandler(target, context, msg, self) {
