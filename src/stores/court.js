@@ -34,13 +34,7 @@ export const useCourtStore = defineStore({
     getInnocentCount() {
       return this.innocentCount;
     },
-    guilty() {
-      this.session = false;
-      this.accused = "";
-      this.guiltyCount = 0;
-      this.innocentCount = 0;
-    },
-    innocent() {
+    end() {
       this.session = false;
       this.accused = "";
       this.guiltyCount = 0;

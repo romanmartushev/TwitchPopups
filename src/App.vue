@@ -2,7 +2,6 @@
 import EventQueue from "./js/EventQueue";
 import tmi from "tmi.js";
 import axios from "axios";
-import { useVipStore } from "./stores/vips";
 import { useCoolDownStore } from "./stores/cooldown";
 import { useCourtStore } from "./stores/court";
 
@@ -28,7 +27,6 @@ export default {
       showTTS: false,
       text: "",
       activeVideo: "",
-      vips: useVipStore(),
       cooldown: useCoolDownStore(),
       court: useCourtStore(),
       auth_token: "",
@@ -211,36 +209,23 @@ export default {
     },
     vipCommand(context, textContent) {
       const vm = this;
-      if (this.vips.has(context.username)) {
-        const vip = this.vips.getVip(context.username);
-        vm.eventQueue.add(vm.setModal, [
-          true,
-          vip.profile_image_url,
-          `I'M A VIP B**CH!!!! - ${vip.display_name}`,
-          12000,
-        ]);
-        vm.eventQueue.add(vm.playSound, ["/sounds/vip.mp3"]);
-      } else {
-        axios
-          .get(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
-            headers: {
-              Authorization: `Bearer ${this.auth_token}`,
-              "Client-Id": import.meta.env.VITE_CLIENT_ID,
-            },
-          })
-          .then((response) => {
-            let vip = response.data.data[0];
-            vip.username = context.username;
-            vm.vips.add(vip);
-            vm.eventQueue.add(vm.setModal, [
-              true,
-              vip.profile_image_url,
-              `I'M A VIP B**CH!!!! - ${vip.display_name}`,
-              12000,
-            ]);
-            vm.eventQueue.add(vm.playSound, ["/sounds/vip.mp3"]);
-          });
-      }
+      axios
+        .get(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
+          headers: {
+            Authorization: `Bearer ${this.auth_token}`,
+            "Client-Id": import.meta.env.VITE_CLIENT_ID,
+          },
+        })
+        .then((response) => {
+          let vip = response.data.data[0];
+          vm.eventQueue.add(vm.setModal, [
+            true,
+            vip.profile_image_url,
+            `I'M A VIP B**CH!!!! - ${vip.display_name}`,
+            12000,
+          ]);
+          vm.eventQueue.add(vm.playSound, ["/sounds/vip.mp3"]);
+        });
     },
     finCommand(context, textContent) {
       if (textContent.substring(4)) {
@@ -361,11 +346,11 @@ export default {
     },
     guiltySentence(context, textContent) {
       const username = textContent.substring(9);
-      this.court.guilty();
+      this.court.end();
       this.client.say(this.broadcaster, `/timeout @${username} 600`);
     },
     innocentSentence(context, textContent) {
-      this.court.innocent();
+      this.court.end();
     },
     releaseFromJail(context, textContent) {
       const username = textContent.substring(10);
