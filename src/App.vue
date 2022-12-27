@@ -2,7 +2,7 @@
 import EventQueue from "./js/EventQueue";
 import tmi from "tmi.js";
 import axios from "axios";
-import { useCourtStore } from "./stores/court";
+import Court from "./js/court";
 
 export default {
   data() {
@@ -26,7 +26,7 @@ export default {
       showTTS: false,
       text: "",
       activeVideo: "",
-      court: useCourtStore(),
+      court: new Court(),
       auth_token: "",
       modal: {
         active: false,
