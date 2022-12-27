@@ -96,13 +96,6 @@ export default {
 
     this.client = new tmi.client(this.opts);
     this.client.on("message", this.onMessageHandler);
-    this.client.on("cheer", this.onCheerHandler);
-    this.client.on("anongiftpaidupgrade", this.onAnonGiftPaidUpgrade);
-    this.client.on("giftpaidupgrade", this.onGiftPaidUpgrade);
-    this.client.on("resub", this.onReSub);
-    this.client.on("subgift", this.onSubGift);
-    this.client.on("submysterygift", this.onSubMysteryGift);
-    this.client.on("subscription", this.onSubscriptionHandler);
     this.client.on("connected", this.onConnectedHandler);
     this.client.connect();
 
@@ -211,44 +204,6 @@ export default {
         );
         this.eventQueue.add(this.playVideo, [this.court.getVerdict()]);
       }
-    },
-    onCheerHandler(channel, userstate, message) {
-      const bits = userstate.bits;
-
-      const beginning = `${userstate["display-name"]} just cheered ${bits} bits `;
-      const cleaned = message.replace(/(Cheer\d+)/g, "");
-      this.eventQueue.add(this.textToSpeech, [beginning + cleaned]);
-    },
-    onSubscriptionHandler(channel, username, method, message, userstate) {
-      const event = `${username} just subbed!!!`;
-      this.baseSub(event, message);
-    },
-    onAnonGiftPaidUpgrade(channel, username, userstate) {
-      const event = `${username} is continuing their gift sub!!!`;
-      this.baseSub(event);
-    },
-    onGiftPaidUpgrade(channel, username, sender, userstate) {
-      const event = `${username} is continuing their gift sub from ${sender}!!!`;
-      this.baseSub(event);
-    },
-    onReSub(channel, username, months, message, userstate, methods) {
-      const event = `${username} just re-subbed!!!`;
-      this.baseSub(event, message);
-    },
-    onSubGift(channel, username, streakMonths, recipient, methods, userstate) {
-      const event = `${username} just gifted a sub to ${recipient}!!!`;
-      this.baseSub(event);
-    },
-    onSubMysteryGift(channel, username, numbOfSubs, methods, userstate) {
-      const event = `${username} just gifted ${numbOfSubs} subs!!!`;
-      this.baseSub(event);
-    },
-    baseSub(event, message = "") {
-      let text = event;
-      if (message) {
-        text += message;
-      }
-      this.eventQueue.add(this.textToSpeech, [text]);
     },
     alertCommand(context, textContent) {
       const formattedText = this.formatEmotes(
