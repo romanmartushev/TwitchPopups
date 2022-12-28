@@ -1,4 +1,4 @@
-export default class Court {
+class Court {
   constructor() {
     this.session = false;
     this.accused = "";

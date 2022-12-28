@@ -1,25 +1,17 @@
-<script>
-import EventQueue from "./js/EventQueue";
-import tmi from "tmi.js";
-import axios from "axios";
-import Court from "./js/court";
+const { createApp } = Vue;
 
-export default {
+const app = createApp({
   data() {
     return {
       client: null,
       opts: {
-        channels: [import.meta.env.VITE_TWITCH_CHANNEL],
+        channels: [''],
         options: {
-          clientId: import.meta.env.VITE_CLIENT_ID,
+          clientId: '',
           skipUpdatingEmotesets: true,
         },
-        identity: {
-          username: import.meta.env.VITE_TWITCH_CHANNEL,
-          password: import.meta.env.VITE_TWITCH_OAUTH,
-        },
       },
-      broadcaster: import.meta.env.VITE_TWITCH_CHANNEL,
+      broadcaster: '',
       activeCommands: {},
       eventQueue: new EventQueue(),
       show: false,
@@ -34,9 +26,24 @@ export default {
         text: "",
         isVideo: false,
       },
+      config: {},
     };
   },
   async mounted() {
+    const vm = this;
+    await fetch('./env.json')
+      .then((response) => response.json())
+      .then((data) => {
+        vm.config = data;
+        vm.broadcaster = data.channel;
+        vm.opts.channels = [data.channel]
+        vm.opts.options.clientId = data.client_id;
+        vm.opts.identity = {
+          username: data.channel,
+          password: data.oauth,
+        }
+    });
+
     this.activeCommands = {
       "!alert": {
         func: this.alertCommand,
@@ -93,14 +100,11 @@ export default {
     this.client.on("connected", this.onConnectedHandler);
     this.client.connect();
 
-    this.auth_token = await axios
-      .post("https://id.twitch.tv/oauth2/token", {
-        client_id: import.meta.env.VITE_CLIENT_ID,
-        client_secret: import.meta.env.VITE_CLIENT_SECRET,
-        grant_type: "client_credentials",
-      })
-      .then((response) => {
-        return response.data.access_token;
+    this.auth_token = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${vm.config.client_id}&client_secret=${vm.config.client_secret}&grant_type=client_credentials`,{
+      method: 'POST',
+    }).then((response) => response.json())
+      .then((data) => {
+        return data.access_token;
       });
   },
   watch: {
@@ -176,15 +180,15 @@ export default {
     },
     vipCommand(context, textContent) {
       const vm = this;
-      axios
-        .get(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
-          headers: {
-            Authorization: `Bearer ${this.auth_token}`,
-            "Client-Id": import.meta.env.VITE_CLIENT_ID,
-          },
-        })
-        .then((response) => {
-          let vip = response.data.data[0];
+      fetch(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
+        headers: {
+          Authorization: `Bearer ${vm.auth_token}`,
+          "Client-Id": vm.config.client_id,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          let vip = data.data[0];
           vm.eventQueue.add(vm.setModal, [
             true,
             vip.profile_image_url,
@@ -348,63 +352,6 @@ export default {
       return context.username === this.broadcaster;
     },
   },
-};
-</script>
+});
 
-<template>
-  <transition name="bounce">
-    <div
-      class="w-1/2 flex flex-col items-center justify-center m-auto mt-28 bg-black p-10 rounded-2xl"
-      v-if="court.inSession()"
-    >
-      <h1 class="text-pink uppercase text-8xl">Court is in session</h1>
-      <div class="flex w-full justify-around text-5xl text-blue">
-        <p>Guilty: {{ court.getGuiltyCount() }}</p>
-        <p>Innocent: {{ court.getInnocentCount() }}</p>
-      </div>
-      <p class="absolute text-pink uppercase text-center text-8xl">
-        {{ court.getAccused() }}
-      </p>
-      <img class="relative" src="/images/jail.png" />
-    </div>
-  </transition>
-  <transition name="bounce">
-    <div class="absolute alert-bg left-1 bottom-1" v-if="show">
-      <h1
-        class="p-2 pl-6 text-pink uppercase flex justify-center items-center whitespace-nowrap"
-        v-html="text"
-      ></h1>
-    </div>
-  </transition>
-  <transition name="bounce">
-    <div
-      class="absolute w-full h-full flex flex-col justify-center items-center"
-      v-if="modal.active"
-    >
-      <video v-if="modal.isVideo" autoplay class="w-1/5">
-        <source :src="modal.src" />
-      </video>
-      <img v-else class="w-1/5" :src="modal.src" />
-      <h2 class="mt-1 p-2 pl-6 outline text-pink">
-        {{ modal.text }}
-      </h2>
-    </div>
-  </transition>
-  <div
-    class="flex justify-center items-center h-full justify-self-center"
-    id="video-wrapper"
-    v-if="activeVideo"
-  >
-    <video
-      :key="activeVideo"
-      id="active-video"
-      class="vidClip"
-      autoplay
-      style="max-width: 1000px; max-height: 1000px"
-    >
-      <source :src="`/videos/${activeVideo}.mp4`" />
-    </video>
-  </div>
-  <img v-if="showTTS" class="absolute bottom-20 left-3" src="/images/tts.gif" />
-  <audio id="tts-audio" />
-</template>
+app.mount("#app");

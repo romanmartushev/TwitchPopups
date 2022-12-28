@@ -1,4 +1,4 @@
-export default class EventQueue {
+class EventQueue {
   constructor() {
     this.queue = [];
     this.executing = false;
