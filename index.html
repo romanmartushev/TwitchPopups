@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Twitch Popups</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="./css/styles.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="/js/tmi.min.js"></script>
-    <script src="/js/Court.js"></script>
-    <script src="/js/EventQueue.js"></script>
+    <script src="./js/tmi.min.js"></script>
+    <script src="./js/Court.js"></script>
+    <script src="./js/EventQueue.js"></script>
+    <script src="./env.js"></script>
   </head>
   <body class="h-screen w-screen">
     <div id="app" class="h-screen w-screen">
@@ -26,7 +27,7 @@
           <p class="absolute text-pink uppercase text-center text-8xl">
             {{ court.getAccused() }}
           </p>
-          <img class="relative" src="/images/jail.png" />
+          <img class="relative" src="./images/jail.png" />
         </div>
       </transition>
       <transition name="bounce">
@@ -63,12 +64,12 @@
           autoplay
           style="max-width: 1000px; max-height: 1000px"
         >
-          <source :src="`/videos/${activeVideo}.mp4`" />
+          <source :src="`./videos/${activeVideo}.mp4`" />
         </video>
       </div>
-      <img v-if="showTTS" class="absolute bottom-20 left-3" src="/images/tts.gif" />
+      <img v-if="showTTS" class="absolute bottom-20 left-3" src="./images/tts.gif" />
       <audio id="tts-audio" />
     </div>
   </body>
-  <script src="/js/main.js"></script>
+  <script src="./js/main.js"></script>
 </html>

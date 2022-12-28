@@ -5,13 +5,17 @@ const app = createApp({
     return {
       client: null,
       opts: {
-        channels: [''],
+        channels: [env.channel],
         options: {
-          clientId: '',
+          clientId: env.client_id,
           skipUpdatingEmotesets: true,
         },
+        identity: {
+          username: env.channel,
+          password: env.oauth,
+        }
       },
-      broadcaster: '',
+      broadcaster: env.channel,
       activeCommands: {},
       eventQueue: new EventQueue(),
       show: false,
@@ -26,24 +30,10 @@ const app = createApp({
         text: "",
         isVideo: false,
       },
-      config: {},
+      config: env,
     };
   },
   async mounted() {
-    const vm = this;
-    await fetch('./env.json')
-      .then((response) => response.json())
-      .then((data) => {
-        vm.config = data;
-        vm.broadcaster = data.channel;
-        vm.opts.channels = [data.channel]
-        vm.opts.options.clientId = data.client_id;
-        vm.opts.identity = {
-          username: data.channel,
-          password: data.oauth,
-        }
-    });
-
     this.activeCommands = {
       "!alert": {
         func: this.alertCommand,
@@ -100,7 +90,7 @@ const app = createApp({
     this.client.on("connected", this.onConnectedHandler);
     this.client.connect();
 
-    this.auth_token = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${vm.config.client_id}&client_secret=${vm.config.client_secret}&grant_type=client_credentials`,{
+    this.auth_token = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${this.config.client_id}&client_secret=${this.config.client_secret}&grant_type=client_credentials`,{
       method: 'POST',
     }).then((response) => response.json())
       .then((data) => {
@@ -195,7 +185,7 @@ const app = createApp({
             `I'M A VIP B**CH!!!! - ${vip.display_name}`,
             12000,
           ]);
-          vm.eventQueue.add(vm.playSound, ["/sounds/vip.mp3"]);
+          vm.eventQueue.add(vm.playSound, ["./sounds/vip.mp3"]);
         });
     },
     finCommand(context, textContent) {
