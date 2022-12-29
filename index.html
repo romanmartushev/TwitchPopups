@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Twitch Popups</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./js/vendor/tailwind.js"></script>
     <link rel="stylesheet" href="./css/styles.css">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="./js/tmi.min.js"></script>
+    <script src="./js/vendor/vue.js"></script>
+    <script src="./js/vendor/tmi.min.js"></script>
     <script src="./js/Court.js"></script>
     <script src="./js/EventQueue.js"></script>
     <script src="./env.js"></script>
@@ -31,42 +31,28 @@
         </div>
       </transition>
       <transition name="bounce">
-        <div class="absolute alert-bg left-1 bottom-1" v-if="show">
-          <h1
-            class="px-6 text-pink uppercase flex justify-center items-center whitespace-nowrap"
-            v-html="text"
-          ></h1>
-        </div>
-      </transition>
-      <transition name="bounce">
         <div
           class="absolute w-full h-full flex flex-col justify-center items-center"
           v-if="modal.active"
         >
-          <video v-if="modal.isVideo" autoplay class="w-1/5">
-            <source :src="modal.src" />
-          </video>
-          <img v-else class="w-1/5" :src="modal.src" />
-          <h2 class="mt-1 p-2 pl-6 outline text-pink">
+          <img
+            class="rounded shadow-2xl shadow-black" :src="modal.src"
+            width="300"
+            height="300"
+          />
+          <h2 class="shadow-2xl shadow-black mt-1 px-5 pt-2 text-5xl outline text-pink">
             {{ modal.text }}
           </h2>
         </div>
       </transition>
-      <div
-        class="flex justify-center items-center h-full justify-self-center"
-        id="video-wrapper"
-        v-if="activeVideo"
-      >
-        <video
-          :key="activeVideo"
-          id="active-video"
-          class="vidClip"
-          autoplay
-          style="max-width: 1000px; max-height: 1000px"
-        >
-          <source :src="`./videos/${activeVideo}.mp4`" />
-        </video>
-      </div>
+      <transition name="bounce">
+        <div class="absolute alert-bg left-1 bottom-1" v-if="show">
+          <h1
+            class="px-6 text-pink uppercase flex justify-center items-center whitespace-nowrap text-4xl"
+            v-html="text"
+          ></h1>
+        </div>
+      </transition>
       <img v-if="showTTS" class="absolute bottom-20 left-3" src="./images/tts.gif" />
       <audio id="tts-audio" />
     </div>

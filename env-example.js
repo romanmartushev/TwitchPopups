@@ -1,6 +1,6 @@
 const env = {
-  "client_id": "",
-  "client_secret": "",
-  "oauth": "",
-  "channel": "romeboiii"
-}
+  client_id: "",
+  client_secret: "",
+  oauth: "",
+  channel: "",
+};

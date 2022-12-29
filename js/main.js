@@ -21,14 +21,12 @@ const app = createApp({
       show: false,
       showTTS: false,
       text: "",
-      activeVideo: "",
       court: new Court(),
       auth_token: "",
       modal: {
         active: false,
         src: "",
         text: "",
-        isVideo: false,
       },
       config: env,
     };
@@ -158,7 +156,6 @@ const app = createApp({
           this.broadcaster,
           `!${this.court.getVerdict()} @${this.court.getAccused()}`
         );
-        this.eventQueue.add(this.playVideo, [this.court.getVerdict()]);
       }
     },
     alertCommand(context, textContent) {
@@ -250,25 +247,6 @@ const app = createApp({
         });
       });
     },
-    playVideo(videoName) {
-      const vm = this;
-      return new Promise((resolve) => {
-        vm.activeVideo = videoName;
-
-        const interval = setInterval(function () {
-          const element = document.querySelector("video");
-          if (element) {
-            element.volume = 0.5;
-            element.addEventListener("ended", (event) => {
-              vm.activeVideo = "";
-              resolve();
-            });
-
-            clearInterval(interval);
-          }
-        }, 100);
-      });
-    },
     playSound(sound) {
       return new Promise((resolve) => {
         const audio = new Audio(sound);
@@ -277,13 +255,11 @@ const app = createApp({
       });
     },
     setModal(active = false, img = "", text = "", time = 5000) {
-      const extension = img.split(".");
       return new Promise((resolve) => {
         this.modal = {
           active: active,
           src: img,
           text: text,
-          isVideo: extension[1] === "mp4",
         };
         const vm = this;
         setTimeout(() => {
@@ -291,7 +267,6 @@ const app = createApp({
             active: false,
             src: "",
             text: "",
-            isVideo: false,
           };
         }, time);
         resolve();
