@@ -3,16 +3,19 @@
     src: url("../fonts/Teko/Teko-Regular.ttf");
 }
 
-#app {
-    font-family: 'Teko';
+@font-face {
+    font-family: 'XPLOR Bold';
+    src: url("../fonts/XPLOR Bold/XPLOR Bold-Regular.otf");
 }
 
-.alert-bg {
-    background: linear-gradient(#062638, #1a2521) padding-box, linear-gradient(to right, #fdec00, #4ef6f1) border-box;
-    clip-path: polygon(0 0, 100% 0%, 100% 100%, 32px 100%, 0 calc(100% - 32px));
-    border: 4px solid transparent;
-    font-size: 30px;
+#app {
+    font-family: 'XPLOR Bold';
 }
+
+.special-bg {
+    background-color: #062638;
+}
+
 .alert-bg img {
     width: 40px;
     margin: 0 10px 0 10px;
@@ -35,18 +38,6 @@
     100% {
         transform: scale(1);
     }
-}
-
-.vidClip {
-    clip-path: polygon(0 0, 100% 0%, 100% 100%, 30px 100%, 0 calc(100% - 30px));
-    font-size: 25px;
-}
-
-.outline {
-    background: linear-gradient(#062638, #1a2521) padding-box, linear-gradient(to right, #fdec00, #4ef6f1) border-box;
-    clip-path: polygon(0 0, 100% 0%, 100% 100%, 32px 100%, 0 calc(100% - 32px));
-    border: 4px solid transparent;
-    font-size: 25px;
 }
 
 .text-pink {
