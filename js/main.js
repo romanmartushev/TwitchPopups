@@ -18,6 +18,7 @@ const app = createApp({
       broadcaster: env.channel,
       activeCommands: {},
       eventQueue: new EventQueue(),
+      cooldown: new CooldownStore(),
       show: false,
       showTTS: false,
       text: "",
@@ -35,22 +36,22 @@ const app = createApp({
     this.activeCommands = {
       "!alert": {
         func: this.alertCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
+        globalCoolDown: 30000,
+        userCoolDown: 30000,
         auth: this.isModSubscriberVip,
         description: "[message]",
       },
       "!fin": {
         func: this.finCommand,
-        globalCoolDown: 15000,
+        globalCoolDown: 30000,
         userCoolDown: 30000,
         auth: this.isModSubscriberVip,
         description: "[message]",
       },
       "!vip": {
         func: this.vipCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
+        globalCoolDown: 30000,
+        userCoolDown: 30000,
         auth: this.isVip,
       },
       "!guilty": {
@@ -123,10 +124,23 @@ const app = createApp({
         command in this.activeCommands &&
         this.activeCommands[command].auth(context)
       ) {
-        this.eventQueue.add(this.activeCommands[command].func, [
-          context,
-          rawText,
-        ]);
+        if (!this.cooldown.hasGlobal(command) && !this.cooldown.hasUser(context.username, command)) {
+          this.eventQueue.add(this.activeCommands[command].func, [
+            context,
+            rawText,
+          ]);
+          this.cooldown.addUser(
+            command,
+            this.activeCommands[command],
+            context.username
+          );
+          this.cooldown.addGlobal(command, this.activeCommands[command]);
+        } else {
+          this.client.say(
+            this.broadcaster,
+            `the ${command} command is on cooldown.`
+          )
+        }
       }
     },
     onTrialHandler(target, context, msg, self) {
