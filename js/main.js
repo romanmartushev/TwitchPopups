@@ -43,8 +43,8 @@ const app = createApp({
       },
       "!fin": {
         func: this.finCommand,
-        globalCoolDown: 30000,
-        userCoolDown: 30000,
+        globalCoolDown: 5000,
+        userCoolDown: 15000,
         auth: this.isModSubscriberVip,
         description: "[message]",
       },
@@ -124,7 +124,7 @@ const app = createApp({
         command in this.activeCommands &&
         this.activeCommands[command].auth(context)
       ) {
-        if (!this.cooldown.hasGlobal(command) && !this.cooldown.hasUser(context.username, command)) {
+        if ((!this.cooldown.hasGlobal(command) && !this.cooldown.hasUser(context.username, command)) || context.username === this.broadcaster) {
           this.eventQueue.add(this.activeCommands[command].func, [
             context,
             rawText,
