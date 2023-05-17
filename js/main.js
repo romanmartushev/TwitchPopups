@@ -54,6 +54,12 @@ const app = createApp({
         userCoolDown: 30000,
         auth: this.isVip,
       },
+      "!ai": {
+        func: this.AIImageCommand,
+        globalCoolDown: 0,
+        userCoolDown: 0,
+        auth: this.isBroadcaster,
+      },
       "!guilty": {
         func: this.guiltySentence,
         globalCoolDown: 0,
@@ -198,6 +204,20 @@ const app = createApp({
           ]);
           vm.eventQueue.add(vm.playSound, ["./sounds/vip.mp3"]);
         });
+    },
+    AIImageCommand(context, textContent) {
+      const vm = this;
+      fetch("https://api.prodia.com/v1/job", {
+        method: 'POST',
+        headers: {
+          'X-Prodia-Key': vm.config.prodia_key,
+        },
+        body: JSON.stringify({prompt: textContent.substring(4)})
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          console.log(response);
+        })
     },
     finCommand(context, textContent) {
       if (textContent.substring(4)) {

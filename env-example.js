@@ -3,4 +3,5 @@ const env = {
   client_secret: "",
   oauth: "",
   channel: "",
+  prodia_key: "",
 };
