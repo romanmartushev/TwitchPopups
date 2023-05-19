@@ -38,14 +38,26 @@ const app = createApp({
         func: this.alertCommand,
         globalCoolDown: 30000,
         userCoolDown: 30000,
-        auth: this.isModSubscriberVip,
+        auth: this.isSubscriber,
         description: "[message]",
+      },
+      "!so": {
+        func: this.shoutOutCommand,
+        globalCoolDown: 0,
+        userCoolDown: 0,
+        auth: this.isMod,
+      },
+      "!soc": {
+        func: this.shoutOutClipCommand,
+        globalCoolDown: 0,
+        userCoolDown: 0,
+        auth: this.isMod,
       },
       "!fin": {
         func: this.finCommand,
         globalCoolDown: 5000,
         userCoolDown: 15000,
-        auth: this.isModSubscriberVip,
+        auth: this.isSubscriber,
         description: "[message]",
       },
       "!vip": {
@@ -204,6 +216,22 @@ const app = createApp({
         return this.textToSpeech(textContent.substring(4));
       }
     },
+    shoutOutCommand(context, textContent) {
+      const name = textContent.substring(4);
+      const url = `https://twitch.tv/${textContent.substring(5)}`;
+      this.client.say(
+        this.broadcaster,
+        `Please join me in following ${name} romeboLove romeboLove You can find them at ${url} romeboJam romeboJam`
+      );
+    },
+    shoutOutClipCommand(context, textContent) {
+      const name = textContent.substring(5);
+      const url = `https://twitch.tv/${textContent.substring(6)}`;
+      this.client.say(
+        this.broadcaster,
+        `Please join me in following ${name} romeboLove romeboLove You can find them at ${url} romeboJam romeboJam Enjoy the clip!!`
+      );
+    },
     formatEmotes(message, emotes) {
       let newMessage = message.split("");
       //replace any twitch emotes in the message with img tags for those emotes
@@ -306,26 +334,14 @@ const app = createApp({
       const username = textContent.substring(10);
       this.client.say(this.broadcaster, `/untimeout @${username}`);
     },
-    isModSubscriberVip(context) {
-      return (
-        context.mod ||
-        context.subscriber ||
-        (context.badges && context.badges.vip) ||
-        context.username === this.broadcaster
-      );
-    },
-    isModVip(context) {
-      return (
-        context.mod ||
-        (context.badges && context.badges.vip) ||
-        context.username === this.broadcaster
-      );
+    isSubscriber(context) {
+      return context.subscriber || this.isVip(context);
     },
     isVip(context) {
-      return (
-        (context.badges && context.badges.vip) ||
-        context.username === this.broadcaster
-      );
+      return (context.badges && context.badges.vip) || this.isMod(context);
+    },
+    isMod(context) {
+      return context.mod || this.isBroadcaster(context);
     },
     isBroadcaster(context) {
       return context.username === this.broadcaster;
