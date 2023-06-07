@@ -205,20 +205,71 @@ const app = createApp({
           vm.eventQueue.add(vm.playSound, ["./sounds/vip.mp3"]);
         });
     },
-    AIImageCommand(context, textContent) {
+    async AIImageCommand(context, textContent) {
+      const base = "https://api.prodia.com/v1";
+
+      const headers = {
+        "X-Prodia-Key": this.config.prodia_key,
+      };
+
+      const createJob = async params => {
+        const response = await fetch(`${base}/job`, {
+          method: "POST",
+          headers: {
+            ...headers,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(params),
+        });
+
+        if(response.status !== 200) {
+          throw new Error(`Bad Prodia Response: ${response.status}`);
+        }
+
+        return response.json();
+      };
+
+      const getJob = async (jobId) => {
+        const response = await fetch(`${base}/job/${jobId}`, {
+          headers,
+        });
+
+        if(response.status !== 200) {
+          throw new Error(`Bad Prodia Response: ${response.status}`);
+        }
+
+        return response.json();
+      };
+
+      let job = await createJob({
+        model: "sdv1_4.ckpt [7460a6fa]",
+        prompt: textContent.substring(4),
+      });
+
+      console.log("Job Created! Waiting...");
+
+      while (job.status !== "succeeded" && job.status !== "failed") {
+        await new Promise((resolve) => setTimeout(resolve, 250));
+
+        job = await getJob(job.job);
+      }
+
+      if(job.status !== "succeeded") {
+        this.client.say(this.broadcaster, `${context['display-name']}'s masterpiece couldn't be created romeboDed`);
+      } else {
+        this.client.say(this.broadcaster, `${context['display-name']}'s masterpiece has been created!!! Go to ${job.imageUrl} for a better look.`);
+      }
+
       const vm = this;
-      fetch("https://api.prodia.com/v1/job", {
-        method: 'POST',
-        headers: {
-          'X-Prodia-Key': vm.config.prodia_key,
-        },
-        body: JSON.stringify({prompt: textContent.substring(4)})
-      })
-        .then((response) => response.json())
-        .then((response) => {
-          console.log(response);
-        })
-    },
+      vm.eventQueue.add(vm.setModal, [
+        true,
+        job.imageUrl,
+        '',
+        12000,
+        512,
+        512
+      ]);
+      },
     finCommand(context, textContent) {
       if (textContent.substring(4)) {
         return this.textToSpeech(textContent.substring(4));
@@ -288,12 +339,14 @@ const app = createApp({
         audio.onended = resolve;
       });
     },
-    setModal(active = false, img = "", text = "", time = 5000) {
+    setModal(active = false, img = "", text = "", time = 5000, img_width = 300, img_height = 300) {
       return new Promise((resolve) => {
         this.modal = {
           active: active,
           src: img,
           text: text,
+          img_width: img_width,
+          img_height: img_height,
         };
         const vm = this;
         setTimeout(() => {
@@ -301,6 +354,8 @@ const app = createApp({
             active: false,
             src: "",
             text: "",
+            img_width: 300,
+            img_height: 300,
           };
         }, time);
         resolve();

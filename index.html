@@ -38,10 +38,10 @@
         >
           <img
             class="rounded shadow-2xl shadow-black" :src="modal.src"
-            width="300"
-            height="300"
+            :width="modal.img_width"
+            :height="modal.img_height"
           />
-          <h2 class="shadow-2xl shadow-black mt-1 px-5 pt-2 text-5xl special-bg rounded-2xl">
+          <h2 v-if="modal.text" class="shadow-2xl shadow-black mt-1 px-5 pt-2 text-5xl special-bg rounded-2xl">
             {{ modal.text }}
           </h2>
         </div>
