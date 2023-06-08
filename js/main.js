@@ -55,8 +55,8 @@ const app = createApp({
       },
       "!fin": {
         func: this.finCommand,
-        globalCoolDown: 5000,
-        userCoolDown: 15000,
+        globalCoolDown: 0,
+        userCoolDown: 0,
         auth: this.isSubscriber,
         description: "[message]",
       },
