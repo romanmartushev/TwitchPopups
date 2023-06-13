@@ -54,7 +54,7 @@
           ></h1>
         </div>
       </transition>
-      <img v-if="showTTS" class="absolute bottom-20 left-3" src="./images/tts.gif" />
+      <img v-if="showTTS" :class="[isGrandMaster ? 'rotate-180' : '']" class="absolute bottom-20 left-3" src="./images/tts.gif" />
       <audio id="tts-audio" />
     </div>
   </body>

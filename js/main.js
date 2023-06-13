@@ -30,6 +30,7 @@ const app = createApp({
         text: "",
       },
       config: env,
+      isGrandMaster: false,
     };
   },
   async mounted() {
@@ -213,7 +214,7 @@ const app = createApp({
     },
     finCommand(context, textContent) {
       if (textContent.substring(4)) {
-        return this.textToSpeech(textContent.substring(4));
+        return this.textToSpeech(textContent.substring(4), context.username);
       }
     },
     shoutOutCommand(context, textContent) {
@@ -266,7 +267,7 @@ const app = createApp({
         }, 1000);
       }
     },
-    textToSpeech(text) {
+    textToSpeech(text, username = '') {
       const vm = this;
       return new Promise((resolve) => {
         const src =
@@ -275,6 +276,8 @@ const app = createApp({
 
         const audioTag = document.getElementById("tts-audio");
         audioTag.src = src;
+
+        vm.isGrandMaster = username === 'grand_master_shadow';
 
         vm.showTTS = true;
         setTimeout(function () {
