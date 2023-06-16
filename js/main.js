@@ -218,16 +218,16 @@ const app = createApp({
       }
     },
     shoutOutCommand(context, textContent) {
-      const name = textContent.substring(4);
-      const url = `https://twitch.tv/${textContent.substring(5)}`;
+      const name = textContent.replace('!so ', '');
+      const url = name.startsWith('@') ? `https://twitch.tv/${textContent.substring(5)}` : `https://twitch.tv/${textContent.substring(4)}`;
       this.client.say(
         this.broadcaster,
         `Please join me in following ${name} romeboLove romeboLove You can find them at ${url} romeboJam romeboJam`
       );
     },
     shoutOutClipCommand(context, textContent) {
-      const name = textContent.substring(5);
-      const url = `https://twitch.tv/${textContent.substring(6)}`;
+      const name = textContent.replace('!soc ', '');
+      const url = name.startsWith('@') ? `https://twitch.tv/${textContent.substring(6)}` : `https://twitch.tv/${textContent.substring(5)}`;
       this.client.say(
         this.broadcaster,
         `Please join me in following ${name} romeboLove romeboLove You can find them at ${url} romeboJam romeboJam Enjoy the clip!!`
