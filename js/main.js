@@ -68,21 +68,14 @@ const app = createApp({
         auth: this.isVip,
       },
       "!guilty": {
-        func: this.guiltySentence,
+        func: this.endTrial,
         globalCoolDown: 0,
         userCoolDown: 0,
         auth: this.isBroadcaster,
         arguments: "[@name]",
       },
       "!innocent": {
-        func: this.innocentSentence,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isBroadcaster,
-        arguments: "[@name]",
-      },
-      "!release": {
-        func: this.releaseFromJail,
+        func: this.endTrial,
         globalCoolDown: 0,
         userCoolDown: 0,
         auth: this.isBroadcaster,
@@ -325,17 +318,8 @@ const app = createApp({
         `Court is in session!!! The Accused: ${this.court.getAccused()} stands trial. You decide their fate, are they guilty? : VoteYea (yes) or VoteNay (no).`
       );
     },
-    guiltySentence(context, textContent) {
-      const username = textContent.substring(9);
+    endTrial(context, textContent) {
       this.court.end();
-      this.client.say(this.broadcaster, `/timeout @${username} 600`);
-    },
-    innocentSentence(context, textContent) {
-      this.court.end();
-    },
-    releaseFromJail(context, textContent) {
-      const username = textContent.substring(10);
-      this.client.say(this.broadcaster, `/untimeout @${username}`);
     },
     isSubscriber(context) {
       return context.subscriber || this.isVip(context);
