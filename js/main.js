@@ -130,7 +130,7 @@ const app = createApp({
         command in this.activeCommands &&
         this.activeCommands[command].auth(context)
       ) {
-        if ((!this.cooldown.hasGlobal(command) && !this.cooldown.hasUser(context.username, command)) || context.username === this.broadcaster) {
+        if ((!this.cooldown.hasGlobal(command) && !this.cooldown.hasUser(context.username, command)) || this.isMod(context)) {
           this.eventQueue.add(this.activeCommands[command].func, [
             context,
             rawText,
