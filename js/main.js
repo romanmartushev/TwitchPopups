@@ -22,7 +22,6 @@ const app = createApp({
       show: false,
       showTTS: false,
       text: "",
-      court: new Court(),
       auth_token: "",
       modal: {
         active: false,
@@ -67,27 +66,6 @@ const app = createApp({
         userCoolDown: 30000,
         auth: this.isVip,
       },
-      "!guilty": {
-        func: this.endTrial,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isBroadcaster,
-        arguments: "[@name]",
-      },
-      "!innocent": {
-        func: this.endTrial,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isBroadcaster,
-        arguments: "[@name]",
-      },
-      "!trial": {
-        func: this.courtTrial,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isBroadcaster,
-        arguments: "[@name]",
-      },
     };
 
     this.client = new tmi.client(this.opts);
@@ -115,11 +93,6 @@ const app = createApp({
       console.log(`* Connected to ${addr}:${port}`);
     },
     onMessageHandler(target, context, msg, self) {
-      if (this.court.inSession()) {
-        this.onTrialHandler(target, context, msg, self);
-        return;
-      }
-
       const rawText = msg.trim();
       const command =
         rawText.indexOf(" ") > -1
@@ -147,35 +120,6 @@ const app = createApp({
             `the ${command} command is on cooldown.`
           )
         }
-      }
-    },
-    onTrialHandler(target, context, msg, self) {
-      if (!this.court.voted(context) && context.username !== this.broadcaster) {
-        if (
-          msg.toLowerCase().includes("voteyea") ||
-          msg.toLowerCase().includes("yes")
-        ) {
-          this.court.guiltyCountAdd();
-          this.court.juryAdd(context);
-        }
-        if (
-          msg.toLowerCase().includes("votenay") ||
-          msg.toLowerCase().includes("no")
-        ) {
-          this.court.innocentCountAdd();
-          this.court.juryAdd(context);
-        }
-      }
-      if (context.username === this.broadcaster && msg === "!end") {
-        this.court.inSession(false);
-        this.client.say(
-          this.broadcaster,
-          "The jury has decided your fate, the verdict is:"
-        );
-        this.client.say(
-          this.broadcaster,
-          `!${this.court.getVerdict()} @${this.court.getAccused()}`
-        );
       }
     },
     alertCommand(context, textContent) {
@@ -309,17 +253,6 @@ const app = createApp({
         }, time);
         resolve();
       });
-    },
-    courtTrial(context, textContent) {
-      this.court.inSession(true);
-      this.court.setAccused(textContent.substring(8));
-      this.client.say(
-        this.broadcaster,
-        `Court is in session!!! The Accused: ${this.court.getAccused()} stands trial. You decide their fate, are they guilty? : VoteYea (yes) or VoteNay (no).`
-      );
-    },
-    endTrial(context, textContent) {
-      this.court.end();
     },
     isSubscriber(context) {
       return context.subscriber || this.isVip(context);

@@ -17,22 +17,6 @@
     <div id="app" class="h-screen w-screen">
       <transition name="bounce">
         <div
-          class="w-1/2 flex flex-col items-center justify-center m-auto mt-20 special-bg p-10 rounded-2xl"
-          v-if="court.inSession()"
-        >
-          <h1 class="text-6xl">Court is in session</h1>
-          <div class="flex w-full justify-around text-5xl text-blue">
-            <p>Guilty: {{ court.getGuiltyCount() }}</p>
-            <p>Innocent: {{ court.getInnocentCount() }}</p>
-          </div>
-          <p class="absolute text-center text-8xl">
-            {{ court.getAccused() }}
-          </p>
-          <img class="relative" src="./images/jail.png" />
-        </div>
-      </transition>
-      <transition name="bounce">
-        <div
           class="absolute w-full h-full flex flex-col justify-center items-center"
           v-if="modal.active"
         >
