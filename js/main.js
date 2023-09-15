@@ -19,28 +19,13 @@ const app = createApp({
       activeCommands: {},
       eventQueue: new EventQueue(),
       cooldown: new CooldownStore(),
-      show: false,
       showTTS: false,
-      text: "",
-      auth_token: "",
-      modal: {
-        active: false,
-        src: "",
-        text: "",
-      },
       config: env,
       isGrandMaster: false,
     };
   },
   async mounted() {
     this.activeCommands = {
-      "!alert": {
-        func: this.alertCommand,
-        globalCoolDown: 30000,
-        userCoolDown: 30000,
-        auth: this.isSubscriber,
-        description: "[message]",
-      },
       "!so": {
         func: this.shoutOutCommand,
         globalCoolDown: 0,
@@ -60,25 +45,12 @@ const app = createApp({
         auth: this.isSubscriber,
         description: "[message]",
       },
-      "!vip": {
-        func: this.vipCommand,
-        globalCoolDown: 30000,
-        userCoolDown: 30000,
-        auth: this.isVip,
-      },
     };
 
     this.client = new tmi.client(this.opts);
     this.client.on("message", this.onMessageHandler);
     this.client.on("connected", this.onConnectedHandler);
     this.client.connect();
-
-    this.auth_token = await fetch(`https://id.twitch.tv/oauth2/token?client_id=${this.config.client_id}&client_secret=${this.config.client_secret}&grant_type=client_credentials`,{
-      method: 'POST',
-    }).then((response) => response.json())
-      .then((data) => {
-        return data.access_token;
-      });
   },
   watch: {
     eventQueue: {
@@ -122,33 +94,6 @@ const app = createApp({
         }
       }
     },
-    alertCommand(context, textContent) {
-      const formattedText = this.formatEmotes(
-        textContent,
-        context.emotes
-      ).substring(6);
-      this.showText(formattedText);
-    },
-    vipCommand(context, textContent) {
-      const vm = this;
-      fetch(`https://api.twitch.tv/helix/users?id=${context["user-id"]}`, {
-        headers: {
-          Authorization: `Bearer ${vm.auth_token}`,
-          "Client-Id": vm.config.client_id,
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          let vip = data.data[0];
-          vm.eventQueue.add(vm.setModal, [
-            true,
-            vip.profile_image_url,
-            `I'M A VIP B**CH!!!! - ${vip.display_name}`,
-            12000,
-          ]);
-          vm.eventQueue.add(vm.playSound, ["./sounds/vip.mp3"]);
-        });
-    },
     finCommand(context, textContent) {
       if (textContent.substring(4)) {
         return this.textToSpeech(textContent.substring(4), context.username);
@@ -169,40 +114,6 @@ const app = createApp({
         this.broadcaster,
         `Please join me in following ${name} romeboLove romeboLove You can find them at ${url} romeboJam romeboJam Enjoy the clip!!`
       );
-    },
-    formatEmotes(message, emotes) {
-      let newMessage = message.split("");
-      //replace any twitch emotes in the message with img tags for those emotes
-      for (let emoteIndex in emotes) {
-        const emote = emotes[emoteIndex];
-        for (let charIndexes in emote) {
-          let emoteIndexes = emote[charIndexes];
-          if (typeof emoteIndexes == "string") {
-            emoteIndexes = emoteIndexes.split("-");
-            emoteIndexes = [
-              parseInt(emoteIndexes[0]),
-              parseInt(emoteIndexes[1]),
-            ];
-            for (let i = emoteIndexes[0]; i <= emoteIndexes[1]; ++i) {
-              newMessage[i] = "";
-            }
-            newMessage[
-              emoteIndexes[0]
-            ] = `<img class="emoticon" src="https://static-cdn.jtvnw.net/emoticons/v2/${emoteIndex}/default/dark/3.0"/>`;
-          }
-        }
-      }
-      return newMessage.join("");
-    },
-    showText(text) {
-      const vm = this;
-      this.show = false;
-      if (text.length > 0) {
-        setTimeout(function () {
-          vm.text = text;
-          vm.show = true;
-        }, 1000);
-      }
     },
     textToSpeech(text, username = '') {
       const vm = this;
@@ -227,31 +138,6 @@ const app = createApp({
             resolve();
           }, 250);
         });
-      });
-    },
-    playSound(sound) {
-      return new Promise((resolve) => {
-        const audio = new Audio(sound);
-        audio.play();
-        audio.onended = resolve;
-      });
-    },
-    setModal(active = false, img = "", text = "", time = 5000) {
-      return new Promise((resolve) => {
-        this.modal = {
-          active: active,
-          src: img,
-          text: text,
-        };
-        const vm = this;
-        setTimeout(() => {
-          vm.modal = {
-            active: false,
-            src: "",
-            text: "",
-          };
-        }, time);
-        resolve();
       });
     },
     isSubscriber(context) {

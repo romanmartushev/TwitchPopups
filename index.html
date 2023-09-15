@@ -15,29 +15,6 @@
   </head>
   <body class="h-screen w-screen uppercase text-pink">
     <div id="app" class="h-screen w-screen">
-      <transition name="bounce">
-        <div
-          class="absolute w-full h-full flex flex-col justify-center items-center"
-          v-if="modal.active"
-        >
-          <img
-            class="rounded shadow-2xl shadow-black" :src="modal.src"
-            width="300"
-            height="300"
-          />
-          <h2 class="shadow-2xl shadow-black mt-1 px-5 pt-2 text-5xl special-bg rounded-2xl">
-            {{ modal.text }}
-          </h2>
-        </div>
-      </transition>
-      <transition name="bounce">
-        <div class="absolute alert-bg special-bg left-1 bottom-1 rounded" v-if="show">
-          <h1
-            class="px-6 flex justify-center items-center whitespace-nowrap text-5xl"
-            v-html="text"
-          ></h1>
-        </div>
-      </transition>
       <img v-if="showTTS" :class="[isGrandMaster ? 'rotate-180' : '']" class="absolute bottom-20 left-3" src="./images/tts.gif" />
       <audio id="tts-audio" />
     </div>
