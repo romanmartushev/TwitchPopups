@@ -45,13 +45,13 @@ const app = createApp({
         func: this.shoutOutCommand,
         globalCoolDown: 0,
         userCoolDown: 0,
-        auth: this.isMod,
+        auth: this.isVip,
       },
       "!soc": {
         func: this.shoutOutClipCommand,
         globalCoolDown: 0,
         userCoolDown: 0,
-        auth: this.isMod,
+        auth: this.isVip,
       },
       "!fin": {
         func: this.finCommand,
