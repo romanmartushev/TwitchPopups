@@ -15,8 +15,10 @@
   </head>
   <body class="h-screen w-screen uppercase text-pink">
     <div id="app" class="h-screen w-screen">
-      <img v-if="showTTS" :class="[isGrandMaster ? 'rotate-180' : '']" class="absolute bottom-20 left-3" src="./images/tts.gif" />
-      <audio id="tts-audio" />
+      <img v-if="showFin" :class="[isGrandMaster ? 'rotate-180' : '']" class="absolute bottom-0 left-0" src="./images/fin.gif" />
+      <audio id="fin-audio"></audio>
+      <img v-if="showPercy" :class="[isGrandMaster ? 'rotate-180' : '']" class="absolute bottom-0" style="left: 12rem;" src="./images/percy.gif" />
+      <audio id="percy-audio"></audio>
     </div>
   </body>
   <script src="./js/main.js"></script>

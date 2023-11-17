@@ -19,7 +19,8 @@ const app = createApp({
       activeCommands: {},
       eventQueue: new EventQueue(),
       cooldown: new CooldownStore(),
-      showTTS: false,
+      showFin: false,
+      showPercy: false,
       config: env,
       isGrandMaster: false,
     };
@@ -40,6 +41,13 @@ const app = createApp({
       },
       "!fin": {
         func: this.finCommand,
+        globalCoolDown: 0,
+        userCoolDown: 0,
+        auth: this.isSubscriber,
+        description: "[message]",
+      },
+      "!percy": {
+        func: this.percyCommand,
         globalCoolDown: 0,
         userCoolDown: 0,
         auth: this.isSubscriber,
@@ -94,9 +102,14 @@ const app = createApp({
         }
       }
     },
+    percyCommand(context, textContent) {
+      if (textContent.substring(6)) {
+        return this.textToSpeech(textContent.substring(6), context.username, 'Percy', 'Ivy');
+      }
+    },
     finCommand(context, textContent) {
       if (textContent.substring(4)) {
-        return this.textToSpeech(textContent.substring(4), context.username);
+        return this.textToSpeech(textContent.substring(4), context.username, 'Fin', 'Justin');
       }
     },
     shoutOutCommand(context, textContent) {
@@ -115,26 +128,40 @@ const app = createApp({
         `Please join me in following ${name} romeboLove romeboLove You can find them at ${url} romeboJam romeboJam Enjoy the clip!!`
       );
     },
-    textToSpeech(text, username = '') {
+    textToSpeech(text, username, cat, voiceName) {
       const vm = this;
       return new Promise((resolve) => {
         const src =
-          "https://api.streamelements.com/kappa/v2/speech?voice=Justin&text=" +
+          `https://api.streamelements.com/kappa/v2/speech?voice=${voiceName}&text=` +
           encodeURIComponent(text);
+        let audioTag;
 
-        const audioTag = document.getElementById("tts-audio");
+        if (cat === 'Fin') {
+          audioTag = document.getElementById("fin-audio");
+        } else {
+          audioTag = document.getElementById("percy-audio");
+        }
+
         audioTag.src = src;
 
         vm.isGrandMaster = username === 'grand_master_shadow';
 
-        vm.showTTS = true;
+        if(cat === 'Fin') {
+          vm.showFin = true;
+        } else {
+          vm.showPercy = true;
+        }
         setTimeout(function () {
           audioTag.play();
         }, 250);
 
         audioTag.addEventListener("ended", () => {
           setTimeout(function () {
-            vm.showTTS = false;
+            if(cat === 'Fin') {
+              vm.showFin = false;
+            } else {
+              vm.showPercy = false;
+            }
             resolve();
           }, 250);
         });
