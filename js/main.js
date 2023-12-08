@@ -27,18 +27,6 @@ const app = createApp({
   },
   async mounted() {
     this.activeCommands = {
-      "!so": {
-        func: this.shoutOutCommand,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isVip,
-      },
-      "!soc": {
-        func: this.shoutOutClipCommand,
-        globalCoolDown: 0,
-        userCoolDown: 0,
-        auth: this.isVip,
-      },
       "!fin": {
         func: this.finCommand,
         globalCoolDown: 0,
@@ -111,22 +99,6 @@ const app = createApp({
       if (textContent.substring(4)) {
         return this.textToSpeech(textContent.substring(4), context.username, 'Fin', 'Justin');
       }
-    },
-    shoutOutCommand(context, textContent) {
-      const name = textContent.replace('!so ', '');
-      const url = name.startsWith('@') ? `https://twitch.tv/${textContent.substring(5)}` : `https://twitch.tv/${textContent.substring(4)}`;
-      this.client.say(
-        this.broadcaster,
-        `Please join me in following ${name} romeboLove romeboLove You can find them at ${url} romeboJam romeboJam`
-      );
-    },
-    shoutOutClipCommand(context, textContent) {
-      const name = textContent.replace('!soc ', '');
-      const url = name.startsWith('@') ? `https://twitch.tv/${textContent.substring(6)}` : `https://twitch.tv/${textContent.substring(5)}`;
-      this.client.say(
-        this.broadcaster,
-        `Please join me in following ${name} romeboLove romeboLove You can find them at ${url} romeboJam romeboJam Enjoy the clip!!`
-      );
     },
     textToSpeech(text, username, cat, voiceName) {
       const vm = this;
