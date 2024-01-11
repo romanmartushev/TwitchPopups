@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Twitch Popups</title>
     <script src="./js/vendor/tailwind.js"></script>
-    <link rel="stylesheet" href="./css/styles.css">
     <script src="./js/vendor/vue.js"></script>
     <script src="./js/vendor/tmi.min.js"></script>
     <script src="./js/EventQueue.js"></script>
     <script src="./js/CooldownStore.js"></script>
     <script src="./env.js"></script>
   </head>
-  <body class="h-screen w-screen uppercase text-pink">
+  <body class="h-screen w-screen">
     <div id="app" class="h-screen w-screen">
       <img v-if="showFin" :class="[isGrandMaster ? 'rotate-180' : '']" class="absolute bottom-0 left-0" src="./images/fin.gif" />
       <audio id="fin-audio"></audio>
